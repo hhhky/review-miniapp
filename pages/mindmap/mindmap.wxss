@@ -1,0 +1,72 @@
+.page-mindmap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content {
+  flex: 1;
+  padding-top: 16rpx;
+  padding-bottom: 120rpx;
+}
+
+/* ── Workflow Cards ──────────────────────── */
+.wf-card {
+  cursor: pointer;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8rpx;
+  background: var(--gray-100);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 999px;
+  transition: width 0.3s;
+}
+
+/* ── Mind Map Detail ─────────────────────── */
+.mindmap-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-header {
+  background: #fff;
+  border-bottom: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+
+.zoom-label {
+  font-size: 22rpx;
+  color: var(--gray-400);
+  padding: 8rpx;
+}
+
+.mindmap-canvas {
+  flex: 1;
+  width: 100%;
+}
+
+/* ── Shape & Size Buttons ────────────────── */
+.shape-btn, .size-btn {
+  padding: 12rpx 32rpx;
+  border-radius: 12px;
+  font-size: 24rpx;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  border: 2px solid transparent;
+}
+
+.shape-btn.active, .size-btn.active {
+  background: #ede9fe;
+  color: var(--purple);
+  border-color: var(--purple);
+}

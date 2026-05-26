@@ -1,0 +1,88 @@
+.page-review {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.tab-content {
+  padding-top: 16rpx;
+}
+
+/* ── Category Items ──────────────────────── */
+.category-item {
+  cursor: pointer;
+}
+
+.category-item .delete-btn {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 999px;
+  font-size: 22rpx;
+}
+
+/* ── Filter Bar ─────────────────────────── */
+.filter-bar {
+  white-space: nowrap;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 12rpx 28rpx;
+  border-radius: 999px;
+  font-size: 24rpx;
+  font-weight: 500;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  flex-shrink: 0;
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── File Items ─────────────────────────── */
+.file-item {
+  cursor: pointer;
+}
+
+.file-actions text {
+  padding: 8rpx 16rpx;
+  background: var(--gray-100);
+  border-radius: 999px;
+}
+
+/* ── Upload Cat ─────────────────────────── */
+.upload-cat-item {
+  background: var(--gray-100);
+  cursor: pointer;
+}
+
+.upload-cat-item.active {
+  background: #ede9fe;
+  box-shadow: 0 0 0 3rpx var(--purple);
+}
+
+/* ── Color Picker ───────────────────────── */
+.color-option {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.15);
+}
+
+.color-option.active {
+  transform: scale(1.15);
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.25);
+}
+
+/* ── Disabled Button ────────────────────── */
+.btn-primary.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}

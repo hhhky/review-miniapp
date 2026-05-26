@@ -1,0 +1,14 @@
+.page-home {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.widgets-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.widget-card {
+  cursor: pointer;
+}

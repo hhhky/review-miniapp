@@ -1,0 +1,66 @@
+.page-memo {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.tab-content {
+  padding-top: 16rpx;
+}
+
+/* ── Memo Card ──────────────────────────── */
+.memo-card {
+  cursor: pointer;
+}
+
+/* ── Calendar ───────────────────────────── */
+.cal-row {
+  display: flex;
+}
+
+.cal-header {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--gray-400);
+  padding: 12rpx 0;
+}
+
+.cal-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cal-cell {
+  width: calc(100% / 7);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 16rpx;
+  position: relative;
+}
+
+.cal-cell.other-month {
+  color: var(--gray-300);
+}
+
+.cal-cell.today {
+  background: var(--gray-100);
+  font-weight: 700;
+}
+
+.cal-cell.selected {
+  background: #ede9fe;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.cal-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  margin-top: 2rpx;
+}

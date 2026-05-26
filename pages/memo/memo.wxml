@@ -1,0 +1,108 @@
+<view class="page-memo">
+  <!-- Sub-tabs -->
+  <view class="tabs p-2 mx-3 mt-3">
+    <view class="tab-btn {{activeTab==='memos'?'active':''}}" data-tab="memos" bindtap="switchSubTab">备忘录</view>
+    <view class="tab-btn {{activeTab==='calendar'?'active':''}}" data-tab="calendar" bindtap="switchSubTab">日历</view>
+  </view>
+
+  <!-- Memos Tab -->
+  <view wx:if="{{activeTab==='memos'}}" class="tab-content p-3">
+    <view class="flex justify-between items-center mb-4">
+      <text class="font-semibold" style="font-size:30rpx;">备忘录 ({{memos.length}})</text>
+      <view class="btn-primary btn-sm" bindtap="showAddMemo">+ 新建备忘</view>
+    </view>
+
+    <view wx:if="{{memos.length===0}}" class="empty">还没有备忘录，点击上方按钮创建</view>
+
+    <view wx:for="{{memos}}" wx:key="id" class="memo-card card mb-3">
+      <view class="flex justify-between items-start mb-2">
+        <text class="font-semibold truncate flex-1" style="font-size:28rpx;">{{item.title}}</text>
+        <view class="flex gap-1 shrink-0 ml-2">
+          <text class="text-xs" style="color:var(--purple);padding:4rpx 16rpx;" data-id="{{item.id}}" catchtap="showEditMemo">编辑</text>
+          <text class="text-xs" style="color:var(--red);padding:4rpx 16rpx;" data-id="{{item.id}}" catchtap="deleteMemoItem">删除</text>
+        </view>
+      </view>
+      <text wx:if="{{item.content}}" class="text-xs text-gray" style="display:block;margin-bottom:12rpx;">{{item.preview}}</text>
+      <view class="flex justify-between items-center">
+        <text class="text-xs" style="color:var(--gray-400);">{{item.dateStr}}{{item.autoDelete?' · 自动删除':''}}</text>
+        <text class="text-xs font-medium" style="color:{{item.daysInfo.color}};">{{item.daysInfo.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Calendar Tab -->
+  <view wx:if="{{activeTab==='calendar'}}" class="tab-content p-3">
+    <view class="flex justify-between items-center mb-4">
+      <view class="btn-ghost btn-sm" bindtap="prevMonth">◀</view>
+      <text class="font-bold" style="font-size:30rpx;">{{calendarYear}}年 {{calendarMonth+1}}月</text>
+      <view class="btn-ghost btn-sm" bindtap="nextMonth">▶</view>
+    </view>
+
+    <view class="flex justify-center mb-3">
+      <view class="btn-outline btn-sm" bindtap="goToToday">今天</view>
+    </view>
+
+    <!-- Day-of-week header -->
+    <view class="cal-row">
+      <text class="cal-header">日</text>
+      <text class="cal-header">一</text>
+      <text class="cal-header">二</text>
+      <text class="cal-header">三</text>
+      <text class="cal-header">四</text>
+      <text class="cal-header">五</text>
+      <text class="cal-header">六</text>
+    </view>
+
+    <!-- Calendar grid -->
+    <view class="cal-grid">
+      <view wx:for="{{calendarCells}}" wx:key="index" class="cal-cell {{item.isOtherMonth?'other-month':''}} {{item.isToday?'today':''}} {{item.isSelected?'selected':''}}"
+        data-date="{{item.dateStr}}" bindtap="selectDate">
+        <text style="font-size:26rpx;">{{item.day}}</text>
+        <view wx:if="{{item.hasMemos}}" class="cal-dot" style="background:{{item.urgency}};"></view>
+      </view>
+    </view>
+
+    <!-- Selected date memos -->
+    <view wx:if="{{selectedDateStr}}" class="mt-4">
+      <text class="font-semibold" style="font-size:28rpx;display:block;margin-bottom:12rpx;">{{selectedDateStr}} ({{selectedDateMemos.length}} 条备忘)</text>
+      <view wx:if="{{selectedDateMemos.length===0}}" class="empty">当天无待办事项</view>
+      <view wx:for="{{selectedDateMemos}}" wx:key="id" class="memo-card card mb-2">
+        <view class="flex justify-between items-start mb-2">
+          <text class="font-semibold truncate flex-1" style="font-size:26rpx;">{{item.title}}</text>
+          <view class="flex gap-1 shrink-0 ml-2">
+            <text class="text-xs" style="color:var(--purple);padding:4rpx 16rpx;" data-id="{{item.id}}" catchtap="showEditMemo">编辑</text>
+            <text class="text-xs" style="color:var(--red);padding:4rpx 16rpx;" data-id="{{item.id}}" catchtap="deleteMemoItem">删除</text>
+          </view>
+        </view>
+        <text wx:if="{{item.content}}" class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">{{item.preview}}</text>
+        <view class="flex justify-between items-center">
+          <text class="text-xs" style="color:var(--gray-400);">{{item.autoDelete?'自动删除':'手动删除'}}</text>
+          <text class="text-xs font-medium" style="color:{{item.daysInfo.color}};">{{item.daysInfo.label}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Add/Edit Memo Modal -->
+  <view wx:if="{{showMemoModal}}" class="modal-mask" bindtap="hideMemoModal">
+    <view class="modal-box" catchtap="">
+      <view class="modal-title">{{editingMemoId?'编辑备忘录':'新建备忘录'}}</view>
+      <input class="input mb-3" placeholder="标题" value="{{memoForm.title}}" bindinput="onMemoTitleInput" focus />
+      <textarea class="input mb-3" placeholder="内容（可选）" value="{{memoForm.content}}" bindinput="onMemoContentInput" style="height:120rpx;" />
+      <view class="mb-3">
+        <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">截止日期</text>
+        <picker mode="date" value="{{memoForm.deadlineDate}}" bindchange="onDeadlineDateChange">
+          <view class="input">{{memoForm.deadlineDate||'选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="flex items-center gap-2 mb-4">
+        <switch checked="{{memoForm.autoDelete}}" bindchange="onAutoDeleteChange" />
+        <text class="text-xs text-gray">到期后自动删除</text>
+      </view>
+      <view class="flex gap-3 justify-between">
+        <view class="btn-ghost flex-1 text-center" bindtap="hideMemoModal">取消</view>
+        <view class="btn-primary flex-1 text-center" bindtap="confirmMemo">{{editingMemoId?'确认更新':'确认创建'}}</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,125 @@
+<view class="page-mindmap">
+  <!-- Sub-tabs -->
+  <view class="tabs p-2 mx-3 mt-3">
+    <view class="tab-btn {{mindmapType==='workflow'?'active':''}}" data-type="workflow" bindtap="switchType">工作流</view>
+    <view class="tab-btn {{mindmapType==='knowledge'?'active':''}}" data-type="knowledge" bindtap="switchType">知识导图</view>
+  </view>
+
+  <!-- List View -->
+  <view wx:if="{{!currentWorkflowId}}" class="tab-content p-3">
+    <view class="flex justify-between items-center mb-4">
+      <text class="font-semibold" style="font-size:30rpx;">{{mindmapType==='knowledge'?'知识导图':'工作流'}} ({{workflows.length}})</text>
+      <view class="btn-primary btn-sm" bindtap="showAddWorkflow">+ 新建</view>
+    </view>
+
+    <view wx:if="{{workflows.length===0}}" class="empty">{{mindmapType==='knowledge'?'还没有知识导图，点击上方按钮创建':'还没有工作流，点击上方按钮创建'}}</view>
+
+    <view wx:for="{{workflows}}" wx:key="id" class="wf-card card mb-3" data-id="{{item.id}}" bindtap="enterWorkflow">
+      <view class="flex justify-between items-start mb-2">
+        <text class="font-semibold truncate flex-1" style="font-size:28rpx;">{{item.name}}</text>
+        <text class="text-xs" style="color:var(--red);padding:4rpx 16rpx;" data-id="{{item.id}}" catchtap="deleteWorkflowItem">删除</text>
+      </view>
+
+      <view wx:if="{{mindmapType==='knowledge'}}" class="text-xs text-gray">
+        {{item.nodeCount}} 个节点
+      </view>
+      <view wx:else class="text-xs text-gray">
+        {{item.nodeCount}} 个节点 · {{item.doneCount}} 已完成
+        <view class="progress-bar mt-2">
+          <view class="progress-fill" style="width:{{item.progress}}%;"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Detail / Mind Map View -->
+  <view wx:if="{{currentWorkflowId}}" class="mindmap-detail">
+    <view class="detail-header flex items-center justify-between p-3">
+      <view class="btn-ghost btn-sm" bindtap="backToList">← 返回</view>
+      <text class="font-bold truncate flex-1 text-center" style="font-size:28rpx;">{{workflowName}}</text>
+      <view class="flex gap-2">
+        <text class="zoom-label">{{zoomPercent}}%</text>
+        <view class="btn-ghost btn-sm" bindtap="zoomOut">−</view>
+        <view class="btn-ghost btn-sm" bindtap="zoomIn">+</view>
+        <view class="btn-ghost btn-sm" bindtap="zoomReset">1:1</view>
+      </view>
+    </view>
+
+    <canvas
+      type="2d"
+      id="mindmap-canvas"
+      class="mindmap-canvas"
+      bindtouchstart="onCanvasTouchStart"
+      bindtouchmove="onCanvasTouchMove"
+      bindtouchend="onCanvasTouchEnd"
+      bindtap="onCanvasTap"
+    ></canvas>
+  </view>
+
+  <!-- Add Workflow Modal -->
+  <view wx:if="{{showWfModal}}" class="modal-mask" bindtap="hideWfModal">
+    <view class="modal-box" catchtap="">
+      <view class="modal-title">{{mindmapType==='knowledge'?'新建知识导图':'新建工作流'}}</view>
+      <input class="input mb-4" placeholder="名称" value="{{wfName}}" bindinput="onWfNameInput" focus />
+      <view class="flex gap-3 justify-between">
+        <view class="btn-ghost flex-1 text-center" bindtap="hideWfModal">取消</view>
+        <view class="btn-primary flex-1 text-center" bindtap="confirmAddWorkflow">确认创建</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Edit Node Modal -->
+  <view wx:if="{{showNodeModal}}" class="modal-mask" bindtap="hideNodeModal">
+    <view class="modal-box" catchtap="">
+      <view class="modal-title">编辑节点</view>
+      <input class="input mb-3" placeholder="标题" value="{{nodeForm.title}}" bindinput="onNodeTitleInput" focus />
+      <textarea class="input mb-3" placeholder="描述（可选）" value="{{nodeForm.desc}}" bindinput="onNodeDescInput" style="height:100rpx;" />
+      <view class="mb-3">
+        <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">形状</text>
+        <view class="flex gap-2">
+          <view class="shape-btn {{nodeForm.shape==='rounded'?'active':''}}" data-shape="rounded" bindtap="pickShape">圆角</view>
+          <view class="shape-btn {{nodeForm.shape==='pill'?'active':''}}" data-shape="pill" bindtap="pickShape">胶囊</view>
+        </view>
+      </view>
+      <view class="mb-4">
+        <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">大小</text>
+        <view class="flex gap-2">
+          <view class="size-btn {{nodeForm.size==='small'?'active':''}}" data-size="small" bindtap="pickSize">小</view>
+          <view class="size-btn {{nodeForm.size==='medium'?'active':''}}" data-size="medium" bindtap="pickSize">中</view>
+          <view class="size-btn {{nodeForm.size==='large'?'active':''}}" data-size="large" bindtap="pickSize">大</view>
+        </view>
+      </view>
+      <view class="flex gap-3 justify-between">
+        <view class="btn-ghost flex-1 text-center" bindtap="hideNodeModal">取消</view>
+        <view class="btn-primary flex-1 text-center" bindtap="confirmNodeEdit">确认更新</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Quick Add Node Dialog -->
+  <view wx:if="{{showQuickAdd}}" class="modal-mask" bindtap="cancelQuickAdd">
+    <view class="modal-box" catchtap="">
+      <view class="modal-title">向{{quickAddDirLabel}}添加子节点</view>
+      <input class="input mb-3" placeholder="节点标题" value="{{quickAddTitle}}" bindinput="onQuickAddInput" focus />
+      <view class="mb-3">
+        <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">形状</text>
+        <view class="flex gap-2">
+          <view class="shape-btn {{quickAddShape==='rounded'?'active':''}}" data-shape="rounded" bindtap="pickQuickShape">圆角</view>
+          <view class="shape-btn {{quickAddShape==='pill'?'active':''}}" data-shape="pill" bindtap="pickQuickShape">胶囊</view>
+        </view>
+      </view>
+      <view class="mb-4">
+        <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">大小</text>
+        <view class="flex gap-2">
+          <view class="size-btn {{quickAddSize==='small'?'active':''}}" data-size="small" bindtap="pickQuickSize">小</view>
+          <view class="size-btn {{quickAddSize==='medium'?'active':''}}" data-size="medium" bindtap="pickQuickSize">中</view>
+          <view class="size-btn {{quickAddSize==='large'?'active':''}}" data-size="large" bindtap="pickQuickSize">大</view>
+        </view>
+      </view>
+      <view class="flex gap-3 justify-between">
+        <view class="btn-ghost flex-1 text-center" bindtap="cancelQuickAdd">取消</view>
+        <view class="btn-primary flex-1 text-center" bindtap="confirmQuickAdd">添加</view>
+      </view>
+    </view>
+  </view>
+</view>

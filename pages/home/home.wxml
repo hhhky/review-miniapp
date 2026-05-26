@@ -1,0 +1,21 @@
+<view class="page-home p-4">
+  <view class="mb-4">
+    <text class="font-bold" style="font-size:40rpx;">实用部件</text>
+    <text class="badge ml-2">{{widgets.length}} 个部件</text>
+  </view>
+
+  <view class="widgets-grid">
+    <view
+      wx:for="{{widgets}}"
+      wx:key="id"
+      class="widget-card rounded-2xl p-4 shadow-sm"
+      style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);"
+      data-id="{{item.id}}"
+      bindtap="enterWidget"
+    >
+      <text style="font-size:60rpx;">{{item.icon}}</text>
+      <text class="text-white font-bold" style="font-size:30rpx; display:block; margin-top:12rpx;">{{item.name}}</text>
+      <text class="text-white" style="font-size:22rpx; opacity:0.8; display:block; margin-top:4rpx;">{{item.desc}}</text>
+    </view>
+  </view>
+</view>
