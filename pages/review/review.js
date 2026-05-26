@@ -73,7 +73,7 @@ Page({
     const filterCats = cats.map(c => ({ id: c.id, name: c.name, count: catMap[c.id] || 0 }));
 
     const currentCat = this.data.currentFilterCat;
-    const filtered = currentCat === null ? files : files.filter(f => f.categoryId === currentCat);
+    const filtered = currentCat == null ? files : files.filter(f => f.categoryId === Number(currentCat));
     const sorted = [...filtered].sort((a, b) => b.createdAt - a.createdAt).map(f => ({
       ...f,
       icon: getFileIcon(f.type, f.name),
@@ -126,7 +126,7 @@ Page({
   },
 
   goToCategory(e) {
-    const catId = e.currentTarget.dataset.id;
+    const catId = Number(e.currentTarget.dataset.id);
     this.setData({ currentFilterCat: catId, activeTab: 'files' });
     this.loadData();
   },
@@ -146,8 +146,9 @@ Page({
 
   // ── Files ───────────────────────────────
   filterFiles(e) {
-    const catId = e.currentTarget.dataset.cat;
-    this.setData({ currentFilterCat: catId === undefined ? null : catId });
+    const catVal = e.currentTarget.dataset.cat;
+    const catId = (catVal === undefined || catVal === null || catVal === '') ? null : Number(catVal);
+    this.setData({ currentFilterCat: catId });
     this.loadData();
   },
 

@@ -45,20 +45,20 @@ function addCategory(name, color) {
 
 function deleteCategory(id) {
   let cats = getCategories();
-  cats = cats.filter(c => c.id !== id);
+  cats = cats.filter(c => c.id != id);
   wx.setStorageSync('categories', cats);
 }
 
 // ── Files ────────────────────────────────────
 function getFiles(categoryId) {
   const files = wx.getStorageSync('files') || [];
-  if (categoryId != null) return files.filter(f => f.categoryId === categoryId);
+  if (categoryId != null) return files.filter(f => f.categoryId == categoryId);
   return files;
 }
 
 function getFileById(id) {
   const files = wx.getStorageSync('files') || [];
-  return files.find(f => f.id === id) || null;
+  return files.find(f => f.id == id) || null;
 }
 
 async function addFile(name, categoryId, type, filePath, size) {
@@ -87,17 +87,17 @@ async function addFile(name, categoryId, type, filePath, size) {
 
 function deleteFile(id) {
   let files = wx.getStorageSync('files') || [];
-  const file = files.find(f => f.id === id);
+  const file = files.find(f => f.id == id);
   if (file && file.filePath) {
     try { wx.getFileSystemManager().unlinkSync(file.filePath); } catch (e) {}
   }
-  files = files.filter(f => f.id !== id);
+  files = files.filter(f => f.id != id);
   wx.setStorageSync('files', files);
 }
 
 function updateFileName(id, newName) {
   let files = wx.getStorageSync('files') || [];
-  const file = files.find(f => f.id === id);
+  const file = files.find(f => f.id == id);
   if (!file) throw new Error('文件不存在');
   file.name = newName;
   wx.setStorageSync('files', files);
@@ -118,13 +118,13 @@ function addMemo(title, content, deadline, autoDelete) {
 
 function deleteMemo(id) {
   let memos = getMemos();
-  memos = memos.filter(m => m.id !== id);
+  memos = memos.filter(m => m.id != id);
   wx.setStorageSync('memos', memos);
 }
 
 function updateMemo(id, updates) {
   let memos = getMemos();
-  const memo = memos.find(m => m.id === id);
+  const memo = memos.find(m => m.id == id);
   if (!memo) throw new Error('备忘录不存在');
   if (updates.title !== undefined) memo.title = updates.title;
   if (updates.content !== undefined) memo.content = updates.content;
@@ -163,7 +163,7 @@ function addWorkflow(name, type) {
 
 function deleteWorkflow(id) {
   let wfs = getWorkflows();
-  wfs = wfs.filter(w => w.id !== id);
+  wfs = wfs.filter(w => w.id != id);
   wx.setStorageSync('workflows', wfs);
   let nodes = getWorkflowNodes();
   nodes = nodes.filter(n => n.workflowId !== id);
@@ -173,7 +173,7 @@ function deleteWorkflow(id) {
 // ── Workflow Nodes ───────────────────────────
 function getWorkflowNodes(workflowId) {
   const nodes = wx.getStorageSync('workflowNodes') || [];
-  if (workflowId != null) return nodes.filter(n => n.workflowId === workflowId);
+  if (workflowId != null) return nodes.filter(n => n.workflowId == workflowId);
   return nodes;
 }
 
@@ -192,7 +192,7 @@ function addWorkflowNode(workflowId, parentId, direction, title, desc, shape, si
 
 function updateWorkflowNode(id, updates) {
   let nodes = getWorkflowNodes();
-  const node = nodes.find(n => n.id === id);
+  const node = nodes.find(n => n.id == id);
   if (!node) throw new Error('节点不存在');
   ['title', 'description', 'done', 'parentId', 'direction', 'shape', 'size', 'posX', 'posY'].forEach(f => {
     if (updates[f] !== undefined) node[f] = updates[f];
