@@ -63,9 +63,9 @@
         focus="{{true}}"
       />
       <view wx:if="{{nicknameError}}" class="error-msg">{{nicknameError}}</view>
-      <view class="modal-btns">
-        <button class="btn-ghost" bindtap="onCloseNicknameModal">取消</button>
-        <button class="btn-primary btn-sm" bindtap="onConfirmNickname">确定</button>
+      <view class="flex gap-3 justify-between" style="margin-top:40rpx;">
+        <view class="btn-cancel flex-1 text-center" bindtap="onCloseNicknameModal">取消</view>
+        <view class="btn-primary flex-1 text-center" style="height:80rpx;line-height:80rpx;border-radius:20rpx;padding:0;" bindtap="onConfirmNickname">确定</view>
       </view>
     </view>
   </view>
@@ -89,10 +89,10 @@
       </view>
 
       <!-- 从相册选择 -->
-      <button class="btn-outline mt-4" bindtap="onChooseFromAlbum">从相册选择</button>
+      <view class="btn-outline text-center mt-4" bindtap="onChooseFromAlbum" style="display:block;box-sizing:border-box;">从相册选择</view>
 
-      <view class="modal-btns">
-        <button class="btn-ghost" bindtap="onCloseAvatarModal">关闭</button>
+      <view class="flex justify-center" style="margin-top:32rpx;">
+        <view class="btn-cancel flex-1 text-center" bindtap="onCloseAvatarModal">关闭</view>
       </view>
     </view>
   </view>
