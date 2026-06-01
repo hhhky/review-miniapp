@@ -1,14 +1,112 @@
 .page-home {
   min-height: 100vh;
-  padding-bottom: 120rpx;
+  padding-bottom: 140rpx;
 }
 
+/* ── Header ────────────────────────────────── */
+.home-header {
+  padding: 40rpx 32rpx 24rpx;
+}
+
+.home-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2563eb, #10b981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: var(--gray-400);
+  margin-top: 6rpx;
+}
+
+/* ── Glass Widget Cards ────────────────────── */
 .widgets-grid {
+  padding: 0 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .widget-card {
   cursor: pointer;
+}
+
+.widget-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 32rpx 24rpx;
+  border-radius: 36rpx;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 4rpx 24rpx rgba(37,99,235,0.04), 0 2rpx 6rpx rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.widget-card-inner::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(37,99,235,0.04), rgba(16,185,129,0.03), rgba(59,130,246,0.03));
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.widget-card-inner:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+  box-shadow: 0 2rpx 12rpx rgba(37,99,235,0.06);
+}
+
+.widget-icon-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8rpx 24rpx rgba(37,99,235,0.15);
+}
+
+.widget-icon {
+  font-size: 48rpx;
+}
+
+.widget-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.widget-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.widget-desc {
+  display: block;
+  font-size: 24rpx;
+  color: var(--gray-400);
+  margin-top: 4rpx;
+}
+
+.widget-arrow {
+  font-size: 36rpx;
+  color: var(--gray-300);
+  flex-shrink: 0;
+}
+
+/* ── Footer ────────────────────────────────── */
+.home-footer {
+  text-align: center;
+  padding: 40rpx;
 }

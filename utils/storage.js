@@ -43,6 +43,15 @@ function addCategory(name, color) {
   return id;
 }
 
+function updateCategory(id, name, color) {
+  let cats = getCategories();
+  const cat = cats.find(c => c.id == id);
+  if (!cat) throw new Error('分类不存在');
+  if (name !== undefined) cat.name = name;
+  if (color !== undefined) cat.color = color;
+  wx.setStorageSync('categories', cats);
+}
+
 function deleteCategory(id) {
   let cats = getCategories();
   cats = cats.filter(c => c.id != id);
@@ -216,7 +225,7 @@ function deleteWorkflowNode(id) {
 
 module.exports = {
   initStorage,
-  getCategories, addCategory, deleteCategory,
+  getCategories, addCategory, updateCategory, deleteCategory,
   getFiles, getFileById, addFile, deleteFile, updateFileName,
   getMemos, addMemo, deleteMemo, updateMemo,
   getWorkflows, getWorkflowsByType, addWorkflow, deleteWorkflow,

@@ -1,10 +1,4 @@
 <view class="page-mindmap">
-  <!-- Sub-tabs -->
-  <view class="tabs p-2 mx-3 mt-3">
-    <view class="tab-btn {{mindmapType==='workflow'?'active':''}}" data-type="workflow" bindtap="switchType">工作流</view>
-    <view class="tab-btn {{mindmapType==='knowledge'?'active':''}}" data-type="knowledge" bindtap="switchType">知识导图</view>
-  </view>
-
   <!-- List View -->
   <view wx:if="{{!currentWorkflowId}}" class="tab-content p-3">
     <view class="flex justify-between items-center mb-4">
@@ -45,6 +39,11 @@
       </view>
     </view>
 
+    <!-- 操作提示 -->
+    <view class="mindmap-hints">
+      <text>💡 双击节点编辑 · 长按节点拖拽 · 点 + 添加子节点</text>
+    </view>
+
     <canvas
       type="2d"
       id="mindmap-canvas"
@@ -56,11 +55,23 @@
     ></canvas>
   </view>
 
+  <!-- Bottom Sub-tabs -->
+  <view class="bottom-tabs">
+    <view class="tab-btn {{mindmapType==='workflow'?'active':''}}" data-type="workflow" bindtap="switchType">
+      <text class="tab-icon">🔄</text>
+      <text class="tab-text">工作流</text>
+    </view>
+    <view class="tab-btn {{mindmapType==='knowledge'?'active':''}}" data-type="knowledge" bindtap="switchType">
+      <text class="tab-icon">🧠</text>
+      <text class="tab-text">知识</text>
+    </view>
+  </view>
+
   <!-- Add Workflow Modal -->
-  <view wx:if="{{showWfModal}}" class="modal-mask" bindtap="hideWfModal">
-    <view class="modal-box" catchtap="">
+  <view wx:if="{{showWfModal}}" class="modal-mask" bindtap="hideWfModal" catchtouchmove="noop">
+    <view class="modal-box" catchtap="noop">
       <view class="modal-title">{{mindmapType==='knowledge'?'新建知识导图':'新建工作流'}}</view>
-      <input class="input mb-4" placeholder="名称" value="{{wfName}}" bindinput="onWfNameInput" focus />
+      <input class="input mb-4" placeholder="名称" value="{{wfName}}" bindinput="onWfNameInput" focus adjust-position="{{false}}" />
       <view class="flex gap-3 justify-between">
         <view class="btn-ghost flex-1 text-center" bindtap="hideWfModal">取消</view>
         <view class="btn-primary flex-1 text-center" bindtap="confirmAddWorkflow">确认创建</view>
@@ -69,11 +80,11 @@
   </view>
 
   <!-- Edit Node Modal -->
-  <view wx:if="{{showNodeModal}}" class="modal-mask" bindtap="hideNodeModal">
-    <view class="modal-box" catchtap="">
+  <view wx:if="{{showNodeModal}}" class="modal-mask" bindtap="hideNodeModal" catchtouchmove="noop">
+    <view class="modal-box" catchtap="noop">
       <view class="modal-title">编辑节点</view>
-      <input class="input mb-3" placeholder="标题" value="{{nodeForm.title}}" bindinput="onNodeTitleInput" focus />
-      <textarea class="input mb-3" placeholder="描述（可选）" value="{{nodeForm.desc}}" bindinput="onNodeDescInput" style="height:100rpx;" />
+      <input class="input mb-3" placeholder="标题" value="{{nodeForm.title}}" bindinput="onNodeTitleInput" focus adjust-position="{{false}}" />
+      <textarea class="input mb-3" placeholder="描述（可选）" value="{{nodeForm.desc}}" bindinput="onNodeDescInput" style="height:100rpx;" adjust-position="{{false}}" />
       <view class="mb-3">
         <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">形状</text>
         <view class="flex gap-2">
@@ -97,10 +108,10 @@
   </view>
 
   <!-- Quick Add Node Dialog -->
-  <view wx:if="{{showQuickAdd}}" class="modal-mask" bindtap="cancelQuickAdd">
-    <view class="modal-box" catchtap="">
+  <view wx:if="{{showQuickAdd}}" class="modal-mask" bindtap="cancelQuickAdd" catchtouchmove="noop">
+    <view class="modal-box" catchtap="noop">
       <view class="modal-title">向{{quickAddDirLabel}}添加子节点</view>
-      <input class="input mb-3" placeholder="节点标题" value="{{quickAddTitle}}" bindinput="onQuickAddInput" focus />
+      <input class="input mb-3" placeholder="节点标题" value="{{quickAddTitle}}" bindinput="onQuickAddInput" focus adjust-position="{{false}}" />
       <view class="mb-3">
         <text class="text-xs text-gray" style="display:block;margin-bottom:8rpx;">形状</text>
         <view class="flex gap-2">

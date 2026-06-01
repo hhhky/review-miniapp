@@ -2,6 +2,8 @@ const storage = require('../../utils/storage');
 
 // ── Constants ──────────────────────────────
 const H_GAP = 80, V_GAP = 40, PAD = 120;
+const PLUS_RADIUS = 14;
+const DOUBLE_TAP_MS = 300;
 
 function nodeW(n) {
   const s = n.size || 'medium';
@@ -57,7 +59,6 @@ function calcLayout(nodes) {
       if (groups[d]) groups[d].push(c);
     });
 
-    // Right
     let ry = p.y;
     groups.right.forEach(c => {
       if (c.posX != null && c.posY != null) {
@@ -70,7 +71,6 @@ function calcLayout(nodes) {
       layoutChildren(c.id);
     });
 
-    // Left
     let ly = p.y;
     groups.left.forEach(c => {
       const cw = nodeW(c);
@@ -84,7 +84,6 @@ function calcLayout(nodes) {
       layoutChildren(c.id);
     });
 
-    // Down
     let dx = p.x;
     groups.down.forEach(c => {
       if (c.posX != null && c.posY != null) {
@@ -97,7 +96,6 @@ function calcLayout(nodes) {
       layoutChildren(c.id);
     });
 
-    // Up
     let ux = p.x;
     groups.up.forEach(c => {
       if (c.posX != null && c.posY != null) {
@@ -160,17 +158,19 @@ Page({
     quickAddSize: 'medium'
   },
 
-  // Internal state (not setData - too heavy for canvas)
   _nodes: [],
   _positions: {},
   _layout: null,
-  _touchState: null,
+  _nodeScreenRects: {},
+  _plusRects: {},
   _canvasReady: false,
+  _lastTapTime: 0,
+  _lastTapNodeId: null,
+  _dragState: null,
+
+  noop() {},
 
   onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
-    }
     this.refreshWorkflows();
   },
 
@@ -195,25 +195,15 @@ Page({
     this.refreshWorkflows();
   },
 
-  // ── Workflow CRUD ────────────────────────
   showAddWorkflow() {
     this.setData({ showWfModal: true, wfName: '' });
   },
-
-  hideWfModal() {
-    this.setData({ showWfModal: false });
-  },
-
-  onWfNameInput(e) {
-    this.setData({ wfName: e.detail.value });
-  },
+  hideWfModal() { this.setData({ showWfModal: false }); },
+  onWfNameInput(e) { this.setData({ wfName: e.detail.value }); },
 
   confirmAddWorkflow() {
     const name = this.data.wfName.trim();
-    if (!name) {
-      wx.showToast({ title: '请输入名称', icon: 'none' });
-      return;
-    }
+    if (!name) { wx.showToast({ title: '请输入名称', icon: 'none' }); return; }
     const id = storage.addWorkflow(name, this.data.mindmapType);
     this.setData({ showWfModal: false });
     wx.showToast({ title: '已创建', icon: 'success' });
@@ -226,15 +216,11 @@ Page({
     const wfs = storage.getWorkflows();
     const w = wfs.find(x => x.id === id);
     if (!w) return;
-
     this.setData({
-      currentWorkflowId: id,
-      workflowName: w.name,
+      currentWorkflowId: id, workflowName: w.name,
       mindmapType: w.type || 'workflow',
       zoom: 1, zoomPercent: '100', panX: 0, panY: 0
     });
-
-    // Delay canvas init until next frame
     setTimeout(() => this.initCanvas(), 200);
   },
 
@@ -253,7 +239,7 @@ Page({
     this.refreshWorkflows();
   },
 
-  // ── Canvas Rendering ─────────────────────
+  // ── Canvas ────────────────────────────────
   async initCanvas() {
     const query = wx.createSelectorQuery();
     query.select('#mindmap-canvas').fields({ node: true, size: true }).exec((res) => {
@@ -283,13 +269,10 @@ Page({
 
     const root = nodes.find(n => n.parentId == null);
     if (!root) {
-      // Auto-create root
       const wfs = storage.getWorkflows();
       const wf = wfs.find(w => w.id === this.data.currentWorkflowId);
-      if (wf) {
-        storage.addWorkflowNode(this.data.currentWorkflowId, null, null, wf.name, '');
-        setTimeout(() => this.renderMindMap(), 100);
-      }
+      if (wf) { storage.addWorkflowNode(this.data.currentWorkflowId, null, null, wf.name, ''); }
+      setTimeout(() => this.renderMindMap(), 100);
       return;
     }
 
@@ -298,10 +281,6 @@ Page({
     this._positions = layout.positions;
     const isKnowledge = this.data.mindmapType === 'knowledge';
 
-    const canvasW = Math.max(layout.w, 900);
-    const canvasH = Math.max(layout.h, 700);
-
-    // Clear
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
@@ -314,7 +293,6 @@ Page({
     ctx.translate(panX + w / 2, panY + h / 2);
     ctx.scale(zoom, zoom);
 
-    // Center position calculation for root
     let cx = 0, cy = 0;
     if (layout.rootId && layout.positions[layout.rootId]) {
       const rp = layout.positions[layout.rootId];
@@ -324,13 +302,9 @@ Page({
       cx = -rp.x - rw / 2;
       cy = -rp.y - rh / 2;
     }
-
     ctx.translate(cx, cy);
 
-    // Draw connections
     this.drawConnections(ctx, nodes, layout.positions, isKnowledge);
-
-    // Draw nodes
     nodes.forEach(n => {
       const pos = layout.positions[n.id];
       if (!pos) return;
@@ -338,9 +312,7 @@ Page({
     });
 
     ctx.restore();
-
-    // Store node screen rects for hit testing
-    this._computeNodeRects(nodes, layout.positions, isKnowledge);
+    this._computeRects(nodes, layout.positions, isKnowledge, cx, cy, w, h, zoom, panX, panY);
   },
 
   drawConnections(ctx, nodes, positions, isKnowledge) {
@@ -358,96 +330,57 @@ Page({
       const ch = nodeH(n);
 
       let x1, y1, x2, y2;
-      if (dir === 'right') {
-        x1 = parentPos.x + pw; y1 = parentPos.y + ph / 2;
-        x2 = childPos.x; y2 = childPos.y + ch / 2;
-      } else if (dir === 'left') {
-        x1 = parentPos.x; y1 = parentPos.y + ph / 2;
-        x2 = childPos.x + cw; y2 = childPos.y + ch / 2;
-      } else if (dir === 'down') {
-        x1 = parentPos.x + pw / 2; y1 = parentPos.y + ph;
-        x2 = childPos.x + cw / 2; y2 = childPos.y;
-      } else {
-        x1 = parentPos.x + pw / 2; y1 = parentPos.y;
-        x2 = childPos.x + cw / 2; y2 = childPos.y + ch;
-      }
+      if (dir === 'right')      { x1 = parentPos.x + pw; y1 = parentPos.y + ph / 2; x2 = childPos.x; y2 = childPos.y + ch / 2; }
+      else if (dir === 'left')  { x1 = parentPos.x; y1 = parentPos.y + ph / 2; x2 = childPos.x + cw; y2 = childPos.y + ch / 2; }
+      else if (dir === 'down')  { x1 = parentPos.x + pw / 2; y1 = parentPos.y + ph; x2 = childPos.x + cw / 2; y2 = childPos.y; }
+      else                      { x1 = parentPos.x + pw / 2; y1 = parentPos.y; x2 = childPos.x + cw / 2; y2 = childPos.y + ch; }
 
       const strokeColor = isKnowledge ? '#c4b5fd' : (n.done ? '#a7f3d0' : '#fecdd3');
-      const dx = Math.abs(x2 - x1);
-      const dy = Math.abs(y2 - y1);
+      const dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
 
       ctx.beginPath();
       ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 2;
-
-      if (dy < 25 || dx < 40) {
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-      } else {
-        const cx1 = x1 + (x2 - x1) * 0.4;
-        const cx2 = x2 - (x2 - x1) * 0.4;
-        ctx.moveTo(x1, y1);
-        ctx.bezierCurveTo(cx1, y1, cx2, y2, x2, y2);
-      }
+      if (dy < 25 || dx < 40) { ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
+      else { ctx.moveTo(x1, y1); ctx.bezierCurveTo(x1 + (x2-x1)*0.4, y1, x2 - (x2-x1)*0.4, y2, x2, y2); }
       ctx.stroke();
     });
   },
 
   drawNode(ctx, n, pos, isKnowledge) {
-    const w = nodeW(n);
-    const h = nodeH(n);
+    const w = nodeW(n), h = nodeH(n);
     const x = pos.x, y = pos.y;
     const isRoot = n.parentId == null;
     const shape = n.shape || 'rounded';
     const radius = shape === 'pill' ? h / 2 : 12;
 
-    // Background
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     if (shape === 'pill') {
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + w - radius, y);
+      ctx.moveTo(x + radius, y); ctx.lineTo(x + w - radius, y);
       ctx.arc(x + w - radius, y + radius, radius, -Math.PI/2, Math.PI/2);
-      ctx.lineTo(x + radius, y + h);
-      ctx.arc(x + radius, y + radius, radius, Math.PI/2, -Math.PI/2);
+      ctx.lineTo(x + radius, y + h); ctx.arc(x + radius, y + radius, radius, Math.PI/2, -Math.PI/2);
     } else {
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + w - radius, y);
+      ctx.moveTo(x + radius, y); ctx.lineTo(x + w - radius, y);
       ctx.arcTo(x + w, y, x + w, y + radius, radius);
-      ctx.lineTo(x + w, y + h - radius);
-      ctx.arcTo(x + w, y + h, x + w - radius, y + h, radius);
-      ctx.lineTo(x + radius, y + h);
-      ctx.arcTo(x, y + h, x, y + h - radius, radius);
-      ctx.lineTo(x, y + radius);
-      ctx.arcTo(x, y, x + radius, y, radius);
+      ctx.lineTo(x + w, y + h - radius); ctx.arcTo(x + w, y + h, x + w - radius, y + h, radius);
+      ctx.lineTo(x + radius, y + h); ctx.arcTo(x, y + h, x, y + h - radius, radius);
+      ctx.lineTo(x, y + radius); ctx.arcTo(x, y, x + radius, y, radius);
     }
     ctx.closePath();
     ctx.fill();
 
-    // Root gradient
     if (isRoot) {
       const grad = ctx.createLinearGradient(x, y, x + w, y + h);
-      if (isKnowledge) {
-        grad.addColorStop(0, 'rgba(139,92,246,0.06)');
-        grad.addColorStop(1, 'rgba(168,85,247,0.04)');
-      } else {
-        grad.addColorStop(0, 'rgba(139,92,246,0.06)');
-        grad.addColorStop(1, 'rgba(236,72,153,0.04)');
-      }
-      ctx.fillStyle = grad;
-      ctx.fill();
+      grad.addColorStop(0, isKnowledge ? 'rgba(37,99,235,0.06)' : 'rgba(37,99,235,0.06)');
+      grad.addColorStop(1, isKnowledge ? 'rgba(59,130,246,0.04)' : 'rgba(16,185,129,0.04)');
+      ctx.fillStyle = grad; ctx.fill();
     }
-
-    if (n.done && !isKnowledge) {
-      ctx.fillStyle = 'rgba(16,185,129,0.06)';
-      ctx.fill();
-    }
+    if (n.done && !isKnowledge) { ctx.fillStyle = 'rgba(16,185,129,0.06)'; ctx.fill(); }
 
     // Border
-    const borderColor = isKnowledge ? '#8b5cf6' : (n.done ? '#10b981' : '#f43f5e');
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = isRoot ? 3 : 2;
-    ctx.stroke();
+    const borderColor = isKnowledge ? '#3b82f6' : (n.done ? '#10b981' : '#f43f5e');
+    ctx.strokeStyle = borderColor; ctx.lineWidth = isRoot ? 3 : 2; ctx.stroke();
 
     // Title
     const fontSize = n.size === 'small' ? 11 : (n.size === 'large' ? 15 : 13);
@@ -455,9 +388,8 @@ Page({
     ctx.font = (isRoot ? 'bold ' : '600 ') + fontSize + 'px sans-serif';
     ctx.textBaseline = 'top';
     const pad = n.size === 'small' ? 8 : (n.size === 'large' ? 16 : 12);
-    const lines = this.wrapText(ctx, n.title || '', w - pad * 2);
-    const maxLines = n.size === 'small' ? 1 : 2;
-    for (let i = 0; i < Math.min(lines.length, maxLines); i++) {
+    const lines = this._wrapText(ctx, n.title || '', w - pad * 2);
+    for (let i = 0; i < Math.min(lines.length, 2); i++) {
       ctx.fillText(lines[i], x + pad, y + pad + i * (fontSize + 2));
     }
 
@@ -465,164 +397,208 @@ Page({
     const descLimit = isKnowledge ? 80 : 30;
     const desc = (n.description || '').substring(0, descLimit);
     if (desc) {
-      const descSize = n.size === 'small' ? 9 : (n.size === 'large' ? 11 : 10);
-      ctx.font = descSize + 'px sans-serif';
+      ctx.font = (n.size === 'small' ? 9 : (n.size === 'large' ? 11 : 10)) + 'px sans-serif';
       ctx.fillStyle = '#9ca3af';
-      const descLines = this.wrapText(ctx, desc, w - pad * 2);
-      const descY = y + pad + Math.min(lines.length, maxLines) * (fontSize + 2) + 4;
-      const maxDesc = n.size === 'small' ? 1 : 2;
-      for (let j = 0; j < Math.min(descLines.length, maxDesc); j++) {
-        ctx.fillText(descLines[j], x + pad, descY + j * (descSize + 2));
-      }
+      const descLines = this._wrapText(ctx, desc, w - pad * 2);
+      const descY = y + pad + Math.min(lines.length, 2) * (fontSize + 2) + 4;
+      for (let j = 0; j < Math.min(descLines.length, 2); j++) ctx.fillText(descLines[j], x + pad, descY + j * (10 + 2));
     }
 
     // Done checkmark
     if (n.done && !isKnowledge) {
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText('✓', x + w - pad, y + pad);
-      ctx.textAlign = 'start';
+      ctx.fillStyle = '#10b981'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText('✓', x + w - pad, y + pad); ctx.textAlign = 'start';
     }
+
+    // "+" button (green circle on right edge)
+    const plusX = x + w + 6;
+    const plusY = y + h / 2;
+    ctx.beginPath();
+    ctx.arc(plusX, plusY, PLUS_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = '#10b981';
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', plusX, plusY);
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
   },
 
-  wrapText(ctx, text, maxWidth) {
+  _wrapText(ctx, text, maxWidth) {
     const chars = text.split('');
     const lines = [];
     let cur = '';
     for (let i = 0; i < chars.length; i++) {
-      const test = cur + chars[i];
-      if (ctx.measureText(test).width > maxWidth && cur.length > 0) {
-        lines.push(cur);
-        cur = chars[i];
-      } else {
-        cur = test;
-      }
+      if (ctx.measureText(cur + chars[i]).width > maxWidth && cur.length > 0) { lines.push(cur); cur = chars[i]; }
+      else cur += chars[i];
     }
     if (cur) lines.push(cur);
     return lines.length ? lines : [text];
   },
 
-  _computeNodeRects(nodes, positions, isKnowledge) {
-    // Convert layout positions to screen positions for hit testing
+  _computeRects(nodes, positions, isKnowledge, cx, cy, canvasW, canvasH, zoom, panX, panY) {
     this._nodeScreenRects = {};
-    const zoom = this.data.zoom;
-    const panX = this.data.panX;
-    const panY = this.data.panY;
-    const w = this._canvasW;
-    const h = this._canvasH;
-
-    // Calculate centering offset
-    let cx = 0, cy = 0;
-    if (this._layout && this._layout.rootId && positions[this._layout.rootId]) {
-      const rp = positions[this._layout.rootId];
-      const rn = nodes.find(n => n.id === this._layout.rootId);
-      const rw = rn ? nodeW(rn) : 160;
-      const rh = rn ? nodeH(rn) : 70;
-      cx = -rp.x - rw / 2;
-      cy = -rp.y - rh / 2;
-    }
-
-    const screenCX = w / 2 + panX;
-    const screenCY = h / 2 + panY;
+    this._plusRects = {};
+    const screenCX = canvasW / 2 + panX;
+    const screenCY = canvasH / 2 + panY;
 
     nodes.forEach(n => {
       const pos = positions[n.id];
       if (!pos) return;
-      const nw = nodeW(n);
-      const nh = nodeH(n);
+      const nw = nodeW(n), nh = nodeH(n);
       const sx = (pos.x + cx) * zoom + screenCX;
       const sy = (pos.y + cy) * zoom + screenCY;
-      this._nodeScreenRects[n.id] = {
-        x: sx, y: sy, w: nw * zoom, h: nh * zoom
-      };
+      this._nodeScreenRects[n.id] = { x: sx, y: sy, w: nw * zoom, h: nh * zoom };
+
+      // Plus button rect
+      const pr = PLUS_RADIUS * zoom;
+      const px = sx + nw * zoom + 6 * zoom - pr;
+      const py = sy + nh * zoom / 2 - pr;
+      this._plusRects[n.id] = { x: px, y: py, w: pr * 2, h: pr * 2 };
     });
   },
 
-  // ── Touch Interactions ───────────────────
+  // ── Touch ─────────────────────────────────
   onCanvasTouchStart(e) {
     if (e.touches.length === 2) {
-      // Pinch start
       const t0 = e.touches[0], t1 = e.touches[1];
       this._touchState = {
-        type: 'pinch',
-        startDist: Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY),
-        startZoom: this.data.zoom,
-        cx: (t0.clientX + t1.clientX) / 2,
-        cy: (t0.clientY + t1.clientY) / 2
+        type: 'pinch', startDist: Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY),
+        startZoom: this.data.zoom, dragged: false
       };
-    } else if (e.touches.length === 1) {
+      return;
+    }
+    if (e.touches.length === 1) {
       const t = e.touches[0];
+      const hit = this._hitTest(t.clientX, t.clientY);
       this._touchState = {
-        type: 'pan',
-        startX: t.clientX, startY: t.clientY,
-        panX: this.data.panX, panY: this.data.panY,
-        moved: false,
-        startTime: Date.now()
+        type: 'tap', startX: t.clientX, startY: t.clientY,
+        startTime: Date.now(), moved: false,
+        hitNodeId: hit ? hit.nodeId : null,
+        hitPlus: hit ? hit.isPlus : false,
+        panX: this.data.panX, panY: this.data.panY
       };
+
+      // If touching a node, prepare for potential drag (long-press triggers drag)
+      if (hit && hit.nodeId && !hit.isPlus) {
+        this._dragNodeTimer = setTimeout(() => {
+          if (this._touchState && !this._touchState.moved) {
+            this._touchState.type = 'drag-node';
+            this._touchState.dragNodeId = hit.nodeId;
+            wx.vibrateShort({ type: 'light' });
+          }
+        }, 400);
+      }
     }
   },
 
   onCanvasTouchMove(e) {
     if (!this._touchState) return;
+    const ts = this._touchState;
 
-    if (this._touchState.type === 'pinch' && e.touches.length === 2) {
+    if (ts.type === 'pinch' && e.touches.length === 2) {
       const t0 = e.touches[0], t1 = e.touches[1];
       const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
-      const ratio = dist / this._touchState.startDist;
-      const s = this._touchState;
-      const newZoom = Math.max(0.3, Math.min(3, s.startZoom * ratio));
-      // Zoom toward pinch center
+      const ratio = dist / ts.startDist;
+      const newZoom = Math.max(0.3, Math.min(3, ts.startZoom * ratio));
+      const cx = (t0.clientX + t1.clientX) / 2, cy = (t0.clientY + t1.clientY) / 2;
       const zr = newZoom / this.data.zoom;
-      const cx = (t0.clientX + t1.clientX) / 2;
-      const cy = (t0.clientY + t1.clientY) / 2;
-      const newPanX = cx - zr * (cx - this.data.panX);
-      const newPanY = cy - zr * (cy - this.data.panY);
-
       this.setData({
-        zoom: Math.round(newZoom * 100) / 100,
-        zoomPercent: String(Math.round(newZoom * 100)),
-        panX: Math.round(newPanX),
-        panY: Math.round(newPanY)
+        zoom: Math.round(newZoom * 100) / 100, zoomPercent: String(Math.round(newZoom * 100)),
+        panX: Math.round(cx - zr * (cx - this.data.panX)),
+        panY: Math.round(cy - zr * (cy - this.data.panY))
       });
+      ts.dragged = true;
       setTimeout(() => this.renderMindMap(), 30);
-    } else if (this._touchState.type === 'pan' && e.touches.length === 1) {
+    } else if (ts.type === 'drag-node' && e.touches.length === 1) {
+      // Move the dragged node
       const t = e.touches[0];
-      const dx = t.clientX - this._touchState.startX;
-      const dy = t.clientY - this._touchState.startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) this._touchState.moved = true;
-      this.setData({
-        panX: this._touchState.panX + dx,
-        panY: this._touchState.panY + dy
-      });
-      setTimeout(() => this.renderMindMap(), 30);
+      const dx = (t.clientX - ts.startX) / this.data.zoom;
+      const dy = (t.clientY - ts.startY) / this.data.zoom;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) ts.moved = true;
+
+      // Update layout position
+      const node = this._nodes.find(n => n.id === ts.dragNodeId);
+      if (node) {
+        node.posX = (node.posX || 0) + dx;
+        node.posY = (node.posY || 0) + dy;
+        ts.startX = t.clientX;
+        ts.startY = t.clientY;
+        ts.dragged = true;
+        this.renderMindMap();
+      }
+    } else if ((ts.type === 'tap' || ts.type === 'drag-node') && e.touches.length === 1) {
+      const t = e.touches[0];
+      const dx = t.clientX - ts.startX;
+      const dy = t.clientY - ts.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) ts.moved = true;
+
+      if (ts.type === 'tap' && !ts.hitNodeId) {
+        // Pan view
+        this.setData({ panX: ts.panX + dx, panY: ts.panY + dy });
+        setTimeout(() => this.renderMindMap(), 30);
+      }
     }
   },
 
   onCanvasTouchEnd(e) {
-    if (!this._touchState) return;
+    clearTimeout(this._dragNodeTimer);
+    const ts = this._touchState;
+    if (!ts) return;
+
+    if (ts.type === 'drag-node' && ts.dragged && ts.dragNodeId) {
+      const node = this._nodes.find(n => n.id === ts.dragNodeId);
+      if (node) {
+        storage.updateWorkflowNode(ts.dragNodeId, { posX: node.posX, posY: node.posY });
+        this.renderMindMap();
+      }
+    }
+
+    if (ts.type === 'tap' && !ts.moved && !ts.dragged) {
+      // Single tap
+      if (ts.hitPlus && ts.hitNodeId) {
+        this._onPlusTap(ts.hitNodeId);
+      } else if (ts.hitNodeId) {
+        const now = Date.now();
+        if (this._lastTapNodeId === ts.hitNodeId && now - this._lastTapTime < DOUBLE_TAP_MS) {
+          // Double tap → edit
+          this._lastTapNodeId = null;
+          this._lastTapTime = 0;
+          this.showEditNode(ts.hitNodeId);
+        } else {
+          this._lastTapNodeId = ts.hitNodeId;
+          this._lastTapTime = now;
+          this._onNodeTap(ts.hitNodeId);
+        }
+      }
+    }
+
     this._touchState = null;
     this.renderMindMap();
   },
 
-  onCanvasTap(e) {
-    // Check if tapped on a node
-    const x = e.detail.x;
-    const y = e.detail.y;
-    if (!this._nodeScreenRects) return;
-
-    let tappedNodeId = null;
-    Object.keys(this._nodeScreenRects).forEach(id => {
+  _hitTest(x, y) {
+    // Check plus buttons first (they're smaller targets, check first to prioritize)
+    for (const id in this._plusRects) {
+      const r = this._plusRects[id];
+      if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
+        return { nodeId: Number(id), isPlus: true };
+      }
+    }
+    // Then check node rects
+    for (const id in this._nodeScreenRects) {
       const r = this._nodeScreenRects[id];
       if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
-        tappedNodeId = Number(id);
+        return { nodeId: Number(id), isPlus: false };
       }
-    });
-
-    if (tappedNodeId) {
-      // Show actions for the node
-      this._onNodeTap(tappedNodeId);
     }
+    return null;
+  },
+
+  _onPlusTap(nodeId) {
+    this.showQuickAddMenu(nodeId);
   },
 
   _onNodeTap(nodeId) {
@@ -630,8 +606,12 @@ Page({
     const node = nodes.find(n => n.id === nodeId);
     if (!node) return;
 
+    const itemList = ['编辑', '添加子节点'];
+    if (this.data.mindmapType !== 'knowledge') itemList.push(node.done ? '取消完成' : '标记完成');
+    itemList.push('删除');
+
     wx.showActionSheet({
-      itemList: ['编辑', '添加子节点', this.data.mindmapType !== 'knowledge' ? (node.done ? '取消完成' : '标记完成') : '', '删除'],
+      itemList,
       success: (res) => {
         switch (res.tapIndex) {
           case 0: this.showEditNode(nodeId); break;
@@ -648,26 +628,45 @@ Page({
 
   showQuickAddMenu(parentId) {
     wx.showActionSheet({
-      itemList: ['右侧', '左侧', '下方', '上方'],
+      itemList: ['添加子节点（右）', '添加子节点（左）', '添加子节点（下）', '添加子节点（上）', '添加同级节点'],
       success: (res) => {
-        const dirs = ['right', 'left', 'down', 'up'];
-        const dirLabels = ['右侧', '左侧', '下方', '上方'];
+        const dirs = ['right', 'left', 'down', 'up', 'sibling'];
+        const dirLabels = ['右侧', '左侧', '下方', '上方', '同级'];
         const dir = dirs[res.tapIndex];
         const defaultSize = this.data.mindmapType === 'knowledge' ? 'large' : 'medium';
-        this.setData({
-          showQuickAdd: true,
-          quickAddParentId: parentId,
-          quickAddDirection: dir,
-          quickAddDirLabel: dirLabels[res.tapIndex],
-          quickAddTitle: '',
-          quickAddShape: 'rounded',
-          quickAddSize: defaultSize
-        });
+
+        if (dir === 'sibling') {
+          // Find parent and add sibling
+          const parent = this._findParentNode(parentId);
+          if (!parent) { wx.showToast({ title: '根节点无法添加同级', icon: 'none' }); return; }
+          const siblingDir = this._nodes.find(n => n.id === parentId)?.direction || 'right';
+          this.setData({
+            showQuickAdd: true, quickAddParentId: parent.id, quickAddDirection: siblingDir,
+            quickAddDirLabel: '同级（' + dirLabels[[ 'right', 'left', 'down', 'up' ].indexOf(siblingDir)] + '）',
+            quickAddTitle: '', quickAddShape: 'rounded', quickAddSize: defaultSize
+          });
+        } else {
+          this.setData({
+            showQuickAdd: true, quickAddParentId: parentId, quickAddDirection: dir,
+            quickAddDirLabel: dirLabels[dirs.indexOf(dir)],
+            quickAddTitle: '', quickAddShape: 'rounded', quickAddSize: defaultSize
+          });
+        }
       }
     });
   },
 
-  // ── Node Editor ──────────────────────────
+  _findParentNode(childId) {
+    const nodes = this._nodes;
+    for (const n of nodes) {
+      if (n.id === childId) {
+        return nodes.find(p => p.id === n.parentId) || null;
+      }
+    }
+    return null;
+  },
+
+  // ── Node Edit ────────────────────────────
   showEditNode(nodeId) {
     const nodes = storage.getWorkflowNodes(this.data.currentWorkflowId);
     const n = nodes.find(x => x.id === nodeId);
@@ -677,29 +676,18 @@ Page({
       nodeForm: { title: n.title, desc: n.description || '', shape: n.shape || 'rounded', size: n.size || 'medium' }
     });
   },
-
-  hideNodeModal() {
-    this.setData({ showNodeModal: false, editingNodeId: null });
-  },
-
+  hideNodeModal() { this.setData({ showNodeModal: false, editingNodeId: null }); },
   onNodeTitleInput(e) { this.setData({ 'nodeForm.title': e.detail.value }); },
   onNodeDescInput(e) { this.setData({ 'nodeForm.desc': e.detail.value }); },
-
   pickShape(e) { this.setData({ 'nodeForm.shape': e.currentTarget.dataset.shape }); },
   pickSize(e) { this.setData({ 'nodeForm.size': e.currentTarget.dataset.size }); },
 
   confirmNodeEdit() {
     const f = this.data.nodeForm;
-    if (!f.title.trim()) {
-      wx.showToast({ title: '请输入节点标题', icon: 'none' });
-      return;
-    }
-    storage.updateWorkflowNode(this.data.editingNodeId, {
-      title: f.title, description: f.desc, shape: f.shape, size: f.size
-    });
+    if (!f.title.trim()) { wx.showToast({ title: '请输入节点标题', icon: 'none' }); return; }
+    storage.updateWorkflowNode(this.data.editingNodeId, { title: f.title, description: f.desc, shape: f.shape, size: f.size });
     wx.showToast({ title: '节点已更新', icon: 'success' });
-    this.hideNodeModal();
-    this.renderMindMap();
+    this.hideNodeModal(); this.renderMindMap();
   },
 
   async toggleNodeDone(nodeId) {
@@ -715,8 +703,7 @@ Page({
     if (!res.confirm) return;
     storage.deleteWorkflowNode(nodeId);
     wx.showToast({ title: '节点已删除', icon: 'success' });
-    this.refreshWorkflows();
-    this.renderMindMap();
+    this.refreshWorkflows(); this.renderMindMap();
   },
 
   // ── Quick Add ────────────────────────────
@@ -726,39 +713,24 @@ Page({
 
   confirmQuickAdd() {
     const title = this.data.quickAddTitle.trim();
-    if (!title) {
-      wx.showToast({ title: '请输入节点标题', icon: 'none' });
-      return;
-    }
-    storage.addWorkflowNode(
-      this.data.currentWorkflowId,
-      this.data.quickAddParentId,
-      this.data.quickAddDirection,
-      title, '', this.data.quickAddShape, this.data.quickAddSize
-    );
+    if (!title) { wx.showToast({ title: '请输入节点标题', icon: 'none' }); return; }
+    storage.addWorkflowNode(this.data.currentWorkflowId, this.data.quickAddParentId, this.data.quickAddDirection, title, '', this.data.quickAddShape, this.data.quickAddSize);
     wx.showToast({ title: '节点已添加', icon: 'success' });
-    this.cancelQuickAdd();
-    this.refreshWorkflows();
-    this.renderMindMap();
+    this.cancelQuickAdd(); this.refreshWorkflows(); this.renderMindMap();
   },
+  cancelQuickAdd() { this.setData({ showQuickAdd: false, quickAddParentId: null, quickAddDirection: null }); },
 
-  cancelQuickAdd() {
-    this.setData({ showQuickAdd: false, quickAddParentId: null, quickAddDirection: null });
-  },
-
-  // ── Zoom Controls ────────────────────────
+  // ── Zoom ─────────────────────────────────
   zoomIn() {
     const z = Math.min(3, this.data.zoom + 0.15);
     this.setData({ zoom: Math.round(z * 100) / 100, zoomPercent: String(Math.round(z * 100)) });
     this.renderMindMap();
   },
-
   zoomOut() {
     const z = Math.max(0.3, this.data.zoom - 0.15);
     this.setData({ zoom: Math.round(z * 100) / 100, zoomPercent: String(Math.round(z * 100)) });
     this.renderMindMap();
   },
-
   zoomReset() {
     this.setData({ zoom: 1, zoomPercent: '100', panX: 0, panY: 0 });
     this.renderMindMap();

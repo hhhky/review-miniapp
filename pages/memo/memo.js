@@ -25,6 +25,8 @@ Page({
     memos: [],
     showMemoModal: false,
     editingMemoId: null,
+    fabLeft: null,
+    fabTop: null,
     memoForm: { title: '', content: '', deadlineDate: '', autoDelete: false },
 
     // Calendar
@@ -36,9 +38,6 @@ Page({
   },
 
   onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
-    }
     this.cleanupExpired();
     this.refreshAll();
   },
@@ -107,6 +106,58 @@ Page({
 
   hideMemoModal() {
     this.setData({ showMemoModal: false, editingMemoId: null });
+  },
+
+  // ── FAB Drag ────────────────────────────
+  onFabTap() {
+    if (!this._fabMoved) {
+      this.showAddMemo();
+    }
+    this._fabMoved = false;
+  },
+
+  onFabTouchStart(e) {
+    this._fabMoved = false;
+    const touch = e.touches[0];
+    const query = wx.createSelectorQuery();
+    query.select('.fab').boundingClientRect(rect => {
+      if (!rect) return;
+      this._fabStartLeft = rect.left;
+      this._fabStartTop = rect.top;
+      this._fabTouchX = touch.clientX;
+      this._fabTouchY = touch.clientY;
+      this._fabDragging = true;
+      if (this.data.fabLeft === null) {
+        this.setData({ fabLeft: rect.left, fabTop: rect.top });
+      }
+    }).exec();
+  },
+
+  onFabTouchMove(e) {
+    if (!this._fabDragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - this._fabTouchX;
+    const dy = touch.clientY - this._fabTouchY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      this._fabMoved = true;
+    }
+    this.setData({
+      fabLeft: this._fabStartLeft + dx,
+      fabTop: this._fabStartTop + dy
+    });
+  },
+
+  onFabTouchEnd() {
+    this._fabDragging = false;
+  },
+
+  noop() {},
+
+  onMaskTap() {
+    // 使用计时器防止与 picker 组件的关闭事件冲突
+    if (!this._maskTapTimer) {
+      this.hideMemoModal();
+    }
   },
 
   onMemoTitleInput(e) {

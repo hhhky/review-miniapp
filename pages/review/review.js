@@ -1,10 +1,10 @@
 const storage = require('../../utils/storage');
 
 const COLORS = [
-  '#a855f7','#c084fc','#e879f9','#f472b6','#ec4899','#f43f5e',
-  '#fb923c','#f97316','#ef4444','#dc2626','#f59e0b','#eab308',
-  '#22c55e','#10b981','#34d399','#14b8a6','#06b6d4','#22d3ee',
-  '#3b82f6','#60a5fa','#6366f1','#8b5cf6','#7c3aed','#6d28d9'
+  '#2563eb','#3b82f6','#60a5fa','#6366f1','#1d4ed8','#1e40af',
+  '#06b6d4','#22d3ee','#0891b2','#14b8a6','#0d9488','#0284c7',
+  '#10b981','#34d399','#22c55e','#16a34a','#15803d','#047857',
+  '#f59e0b','#eab308','#f97316','#fb923c','#ef4444','#dc2626'
 ];
 
 function getFileIcon(type, name) {
@@ -29,6 +29,9 @@ Page({
     selectedColor: COLORS[0],
     newCatName: '',
     showCatModal: false,
+    editingCatId: null,
+    fabLeft: null,
+    fabTop: null,
 
     // Files
     totalFiles: 0,
@@ -45,19 +48,17 @@ Page({
   },
 
   onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
-    }
     this.loadData();
   },
 
   onHide() {
-    // Reset state when leaving page
     this.setData({
       showCatModal: false,
       renamingId: null,
       selectedFile: null,
-      selectedUploadCat: null
+      selectedUploadCat: null,
+      fabLeft: null,
+      fabTop: null
     });
   },
 
@@ -96,13 +97,70 @@ Page({
     if (tab === 'upload') this.loadData();
   },
 
+  // ── FAB Drag ────────────────────────────
+  onFabTap() {
+    if (!this._fabMoved) {
+      this.showAddCategory();
+    }
+    this._fabMoved = false;
+  },
+
+  onFabTouchStart(e) {
+    this._fabMoved = false;
+    const touch = e.touches[0];
+    const query = wx.createSelectorQuery();
+    query.select('.fab').boundingClientRect(rect => {
+      if (!rect) return;
+      this._fabStartLeft = rect.left;
+      this._fabStartTop = rect.top;
+      this._fabTouchX = touch.clientX;
+      this._fabTouchY = touch.clientY;
+      this._fabDragging = true;
+      if (this.data.fabLeft === null) {
+        this.setData({ fabLeft: rect.left, fabTop: rect.top });
+      }
+    }).exec();
+  },
+
+  onFabTouchMove(e) {
+    if (!this._fabDragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - this._fabTouchX;
+    const dy = touch.clientY - this._fabTouchY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      this._fabMoved = true;
+    }
+    this.setData({
+      fabLeft: this._fabStartLeft + dx,
+      fabTop: this._fabStartTop + dy
+    });
+  },
+
+  onFabTouchEnd() {
+    this._fabDragging = false;
+  },
+
   // ── Categories ──────────────────────────
+  noop() {},
+
   showAddCategory() {
-    this.setData({ showCatModal: true, newCatName: '', selectedColor: COLORS[0] });
+    this.setData({ showCatModal: true, editingCatId: null, newCatName: '', selectedColor: COLORS[0] });
+  },
+
+  showEditCategory(e) {
+    const id = e.currentTarget.dataset.id;
+    const cat = this.data.categories.find(c => c.id == id);
+    if (!cat) return;
+    this.setData({
+      showCatModal: true,
+      editingCatId: id,
+      newCatName: cat.name,
+      selectedColor: cat.color
+    });
   },
 
   hideCatModal() {
-    this.setData({ showCatModal: false });
+    this.setData({ showCatModal: false, editingCatId: null });
   },
 
   onCatNameInput(e) {
@@ -119,9 +177,14 @@ Page({
       wx.showToast({ title: '请输入分类名称', icon: 'none' });
       return;
     }
-    storage.addCategory(name, this.data.selectedColor);
-    this.setData({ showCatModal: false });
-    wx.showToast({ title: '分类已创建', icon: 'success' });
+    if (this.data.editingCatId) {
+      storage.updateCategory(this.data.editingCatId, name, this.data.selectedColor);
+      wx.showToast({ title: '分类已更新', icon: 'success' });
+    } else {
+      storage.addCategory(name, this.data.selectedColor);
+      wx.showToast({ title: '分类已创建', icon: 'success' });
+    }
+    this.setData({ showCatModal: false, editingCatId: null });
     this.loadData();
   },
 
@@ -157,13 +220,29 @@ Page({
     const file = storage.getFileById(id);
     if (!file) return;
 
-    wx.openDocument({
-      filePath: file.filePath,
-      showMenu: true,
-      fail() {
-        wx.showToast({ title: '无法预览此文件', icon: 'none' });
-      }
-    });
+    // 判断文件类型
+    const ext = (file.name || '').toLowerCase().split('.').pop();
+    const isImage = (file.type || '').startsWith('image/') || ['jpg','jpeg','png','gif','webp','bmp'].indexOf(ext) !== -1;
+
+    if (isImage) {
+      // 图片使用 previewImage 实现全屏预览
+      wx.previewImage({
+        urls: [file.filePath],
+        current: file.filePath,
+        fail() {
+          wx.showToast({ title: '图片预览失败', icon: 'none' });
+        }
+      });
+    } else {
+      // 文档使用 openDocument
+      wx.openDocument({
+        filePath: file.filePath,
+        showMenu: true,
+        fail() {
+          wx.showToast({ title: '无法预览此文件', icon: 'none' });
+        }
+      });
+    }
   },
 
   startRename(e) {
@@ -212,21 +291,35 @@ Page({
   },
 
   chooseFile() {
-    wx.chooseMessageFile({
-      count: 1,
-      type: 'all',
-      success: (res) => {
-        const file = res.tempFiles[0];
-        this.setData({
-          selectedFile: {
-            path: file.path,
-            name: file.name,
-            size: file.size,
-            type: file.type || '',
-            sizeStr: formatSize(file.size)
-          }
-        });
-        this.updateUploadBtn();
+    const that = this;
+    wx.showActionSheet({
+      itemList: ['从聊天记录选择文件', '从相册选择图片'],
+      success(res) {
+        if (res.tapIndex === 0) {
+          wx.chooseMessageFile({
+            count: 1,
+            type: 'all',
+            success: (res) => {
+              const file = res.tempFiles[0];
+              that.setData({
+                selectedFile: { path: file.path, name: file.name, size: file.size, type: file.type || '', sizeStr: formatSize(file.size) }
+              });
+              that.updateUploadBtn();
+            }
+          });
+        } else {
+          wx.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            success: (res) => {
+              const f = res.tempFiles[0];
+              that.setData({
+                selectedFile: { path: f.tempFilePath, name: '图片_' + Date.now() + '.jpg', size: f.size, type: 'image/jpeg', sizeStr: formatSize(f.size) }
+              });
+              that.updateUploadBtn();
+            }
+          });
+        }
       }
     });
   },

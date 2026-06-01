@@ -14,10 +14,6 @@ Page({
 
   enterWidget(e) {
     const id = e.currentTarget.dataset.id;
-    const tabMap = { review: 1, memo: 2, mindmap: 3 };
-    const idx = tabMap[id];
-    if (idx !== undefined) {
-      wx.switchTab({ url: '/pages/' + id + '/' + id });
-    }
+    wx.navigateTo({ url: '/pages/' + id + '/' + id });
   }
 });

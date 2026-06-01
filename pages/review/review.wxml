@@ -1,19 +1,9 @@
 <view class="page-review">
-  <!-- Sub-tabs -->
-  <view class="tabs p-2 mx-3 mt-3">
-    <view class="tab-btn {{activeTab==='categories'?'active':''}}" data-tab="categories" bindtap="switchSubTab">分类管理</view>
-    <view class="tab-btn {{activeTab==='files'?'active':''}}" data-tab="files" bindtap="switchSubTab">资料列表</view>
-    <view class="tab-btn {{activeTab==='upload'?'active':''}}" data-tab="upload" bindtap="switchSubTab">上传资料</view>
-  </view>
-
   <!-- Categories Tab -->
   <view wx:if="{{activeTab==='categories'}}" class="tab-content p-3">
-    <view class="flex justify-between items-center mb-4">
-      <text class="font-semibold" style="font-size:30rpx;">分类管理</text>
-      <view class="btn-primary btn-sm" bindtap="showAddCategory">+ 新建分类</view>
-    </view>
+    <text class="font-semibold mb-4" style="font-size:30rpx;display:block;">分类管理</text>
 
-    <view wx:if="{{categories.length===0}}" class="empty">还没有分类，点击上方按钮创建</view>
+    <view wx:if="{{categories.length===0}}" class="empty">还没有分类，点击右下角 + 创建</view>
 
     <view wx:for="{{categories}}" wx:key="id" class="category-item rounded-2xl p-3 mb-3 flex items-center gap-3 shadow-sm"
       style="background:{{item.color}}; color:#fff;" data-id="{{item.id}}" bindtap="goToCategory">
@@ -21,6 +11,7 @@
         <text class="font-semibold" style="display:block;font-size:28rpx;">{{item.name}}</text>
         <text style="font-size:22rpx;opacity:0.75;">{{item.fileCount}} 份资料</text>
       </view>
+      <view class="edit-btn" data-id="{{item.id}}" catchtap="showEditCategory">编辑</view>
       <view class="delete-btn" data-id="{{item.id}}" catchtap="deleteCategoryItem">删除</view>
     </view>
   </view>
@@ -37,26 +28,27 @@
 
     <view wx:if="{{filteredFiles.length===0}}" class="empty">还没有上传资料</view>
 
-    <view wx:for="{{filteredFiles}}" wx:key="id" class="file-item card mb-3 flex items-center gap-3" data-id="{{item.id}}" bindtap="previewFile">
-      <text style="font-size:44rpx;">{{item.icon}}</text>
-      <view class="flex-1 min-w-0">
-        <text class="font-medium truncate" style="display:block;font-size:28rpx;">{{item.name}}</text>
-        <text class="text-xs text-gray" style="display:block;">{{item.sizeStr}} · {{item.dateStr}}</text>
+    <!-- 文件列表：使用标准块级流式布局，确保不重叠 -->
+    <view wx:for="{{filteredFiles}}" wx:key="id" class="file-item card" data-id="{{item.id}}" bindtap="previewFile">
+      <text class="file-icon">{{item.icon}}</text>
+      <view class="file-info">
+        <text class="file-name">{{item.name}}</text>
+        <text class="file-meta">{{item.sizeStr}} · {{item.dateStr}}</text>
       </view>
-      <view class="file-actions flex gap-2">
-        <text class="text-xs" style="color:var(--purple);" data-id="{{item.id}}" catchtap="startRename">重命名</text>
-        <text class="text-xs" style="color:var(--red);" data-id="{{item.id}}" catchtap="deleteFileItem">删除</text>
+      <view class="file-actions">
+        <text class="action-btn action-rename" data-id="{{item.id}}" catchtap="startRename">重命名</text>
+        <text class="action-btn action-delete" data-id="{{item.id}}" catchtap="deleteFileItem">删除</text>
       </view>
     </view>
 
-    <!-- Rename inline -->
-    <view wx:if="{{renamingId!==null}}" class="modal-mask" bindtap="cancelRename">
-      <view class="modal-box" catchtap="">
+    <!-- Rename inline modal -->
+    <view wx:if="{{renamingId!==null}}" class="modal-mask" bindtap="cancelRename" catchtouchmove="noop">
+      <view class="modal-box" catchtap="noop">
         <view class="modal-title">重命名文件</view>
-        <input class="input mb-4" value="{{renameValue}}" bindinput="onRenameInput" focus />
+        <input class="input mb-4" value="{{renameValue}}" bindinput="onRenameInput" focus adjust-position="{{false}}" />
         <view class="flex gap-3 justify-between">
-          <view class="btn-ghost flex-1 text-center" bindtap="cancelRename">取消</view>
-          <view class="btn-primary flex-1 text-center" bindtap="confirmRename">确认</view>
+          <view class="btn-ghost flex-1 text-center" catchtap="cancelRename">取消</view>
+          <view class="btn-primary flex-1 text-center" catchtap="confirmRename">确认</view>
         </view>
       </view>
     </view>
@@ -70,17 +62,17 @@
       <text class="text-xs text-gray" style="display:block;margin-bottom:12rpx;">选择分类</text>
       <view wx:if="{{categories.length===0}}" class="empty">请先到"分类"页面创建分类</view>
       <view class="flex flex-wrap gap-2">
-        <view wx:for="{{categories}}" wx:key="id" class="upload-cat-item rounded-xl p-3 flex items-center gap-2 {{selectedUploadCat===item.id?'active':''}}"
+        <view wx:for="{{categories}}" wx:key="id" class="upload-cat-item {{selectedUploadCat===item.id?'active':''}}"
           data-id="{{item.id}}" bindtap="selectUploadCat">
           <view class="cat-pill" style="background:{{item.color}};"></view>
-          <text class="font-medium" style="font-size:26rpx;">{{item.name}}</text>
+          <text class="font-medium" style="font-size:26rpx;margin-left:12rpx;">{{item.name}}</text>
         </view>
       </view>
     </view>
 
     <view class="mb-4">
-      <view class="btn-outline w-full text-center" bindtap="chooseFile">选择文件</view>
-      <view wx:if="{{selectedFile}}" class="card mt-3 flex items-center gap-3">
+      <view class="btn-outline w-full text-center" bindtap="chooseFile" style="display:block;box-sizing:border-box;">选择文件</view>
+      <view wx:if="{{selectedFile}}" class="card mt-3 p-3 flex items-center gap-3">
         <text style="font-size:40rpx;">📎</text>
         <view class="flex-1 min-w-0">
           <text class="font-medium truncate" style="display:block;font-size:26rpx;">{{selectedFile.name}}</text>
@@ -90,26 +82,52 @@
       </view>
     </view>
 
-    <view class="btn-primary w-full text-center {{canUpload?'':'disabled'}}" bindtap="uploadFile">上传资料</view>
+    <view class="btn-primary w-full text-center {{canUpload?'':'disabled'}}" bindtap="uploadFile" style="display:block;box-sizing:border-box;">上传资料</view>
+  </view>
+
+  <!-- FAB -->
+  <view wx:if="{{activeTab==='categories'}}" class="fab"
+    style="{{fabLeft!==null?'left:'+fabLeft+'px;top:'+fabTop+'px;right:auto;bottom:auto;':''}}"
+    bindtouchstart="onFabTouchStart"
+    bindtouchmove="onFabTouchMove"
+    bindtouchend="onFabTouchEnd"
+    catchtap="onFabTap">
+    <text class="fab-icon">+</text>
+  </view>
+
+  <!-- Bottom Sub-tabs -->
+  <view class="bottom-tabs">
+    <view class="tab-btn {{activeTab==='categories'?'active':''}}" data-tab="categories" bindtap="switchSubTab">
+      <text class="tab-icon">📁</text>
+      <text class="tab-text">分类</text>
+    </view>
+    <view class="tab-btn {{activeTab==='files'?'active':''}}" data-tab="files" bindtap="switchSubTab">
+      <text class="tab-icon">📂</text>
+      <text class="tab-text">资料</text>
+    </view>
+    <view class="tab-btn {{activeTab==='upload'?'active':''}}" data-tab="upload" bindtap="switchSubTab">
+      <text class="tab-icon">📤</text>
+      <text class="tab-text">上传</text>
+    </view>
   </view>
 
   <!-- Add Category Modal -->
-  <view wx:if="{{showCatModal}}" class="modal-mask" bindtap="hideCatModal">
-    <view class="modal-box" catchtap="">
-      <view class="modal-title">新建分类</view>
-      <input class="input mb-4" placeholder="分类名称" value="{{newCatName}}" bindinput="onCatNameInput" focus />
+  <view wx:if="{{showCatModal}}" class="modal-mask" bindtap="hideCatModal" catchtouchmove="noop">
+    <view class="modal-box" catchtap="noop">
+      <view class="modal-title">{{editingCatId?'编辑分类':'新建分类'}}</view>
+      <input class="input mb-4" placeholder="分类名称" value="{{newCatName}}" bindinput="onCatNameInput" focus adjust-position="{{false}}" />
       <view class="mb-4">
         <text class="text-xs text-gray" style="display:block;margin-bottom:12rpx;">选择颜色</text>
-        <view class="flex flex-wrap gap-2">
+        <view class="color-grid">
           <view wx:for="{{colors}}" wx:key="*this" class="color-option {{selectedColor===item?'active':''}}"
-            style="background:{{item}};" data-color="{{item}}" bindtap="pickColor">
+            style="background:{{item}};" data-color="{{item}}" catchtap="pickColor">
             <text wx:if="{{selectedColor===item}}" style="color:#fff;font-size:28rpx;">✓</text>
           </view>
         </view>
       </view>
       <view class="flex gap-3 justify-between">
-        <view class="btn-ghost flex-1 text-center" bindtap="hideCatModal">取消</view>
-        <view class="btn-primary flex-1 text-center" bindtap="confirmAddCategory">确认创建</view>
+        <view class="btn-ghost flex-1 text-center" catchtap="hideCatModal">取消</view>
+        <view class="btn-primary flex-1 text-center" catchtap="confirmAddCategory">{{editingCatId?'确认更新':'确认创建'}}</view>
       </view>
     </view>
   </view>

@@ -1,21 +1,34 @@
-<view class="page-home p-4">
-  <view class="mb-4">
-    <text class="font-bold" style="font-size:40rpx;">实用部件</text>
-    <text class="badge ml-2">{{widgets.length}} 个部件</text>
+<view class="page-home">
+  <!-- 头部 -->
+  <view class="home-header">
+    <text class="home-title">实用部件</text>
+    <text class="home-subtitle">{{widgets.length}} 个部件 · 点击进入</text>
   </view>
 
+  <!-- 金刚区卡片 -->
   <view class="widgets-grid">
     <view
       wx:for="{{widgets}}"
       wx:key="id"
-      class="widget-card rounded-2xl p-4 shadow-sm"
-      style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);"
+      class="widget-card"
       data-id="{{item.id}}"
       bindtap="enterWidget"
     >
-      <text style="font-size:60rpx;">{{item.icon}}</text>
-      <text class="text-white font-bold" style="font-size:30rpx; display:block; margin-top:12rpx;">{{item.name}}</text>
-      <text class="text-white" style="font-size:22rpx; opacity:0.8; display:block; margin-top:4rpx;">{{item.desc}}</text>
+      <view class="widget-card-inner" style="background: linear-gradient(135deg, {{item.color}}11, {{item.color}}22);">
+        <view class="widget-icon-wrap" style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);">
+          <text class="widget-icon">{{item.icon}}</text>
+        </view>
+        <view class="widget-info">
+          <text class="widget-name">{{item.name}}</text>
+          <text class="widget-desc">{{item.desc}}</text>
+        </view>
+        <text class="widget-arrow">›</text>
+      </view>
     </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="home-footer">
+    <text class="text-xs text-gray">powered by hhhky</text>
   </view>
 </view>

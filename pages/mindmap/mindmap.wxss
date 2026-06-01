@@ -2,25 +2,33 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: 140rpx;
 }
 
 .tab-content {
   flex: 1;
   padding-top: 16rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: 60rpx;
 }
 
-/* ── Workflow Cards ──────────────────────── */
+/* ── Glass Workflow Cards ─────────────────── */
 .wf-card {
   cursor: pointer;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(37,99,235,0.03), 0 1rpx 4rpx rgba(0,0,0,0.02);
 }
 
 .progress-bar {
   width: 100%;
   height: 8rpx;
-  background: var(--gray-100);
+  background: rgba(255,255,255,0.5);
   border-radius: 999px;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 .progress-fill {
@@ -30,7 +38,7 @@
   transition: width 0.3s;
 }
 
-/* ── Mind Map Detail ─────────────────────── */
+/* ── Glass Mind Map Detail ────────────────── */
 .mindmap-detail {
   flex: 1;
   display: flex;
@@ -39,9 +47,10 @@
 }
 
 .detail-header {
-  background: #fff;
-  border-bottom: 1px solid var(--gray-100);
+  background: rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(255,255,255,0.5);
   flex-shrink: 0;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.03);
 }
 
 .zoom-label {
@@ -55,18 +64,32 @@
   width: 100%;
 }
 
-/* ── Shape & Size Buttons ────────────────── */
+/* ── Hints ────────────────────────────────── */
+.mindmap-hints {
+  padding: 8rpx 16rpx;
+  text-align: center;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.4);
+  border-top: 1px solid rgba(255,255,255,0.5);
+}
+
+.mindmap-hints text {
+  font-size: 20rpx;
+  color: var(--gray-400);
+}
+
+/* ── Glass Shape & Size Buttons ───────────── */
 .shape-btn, .size-btn {
   padding: 12rpx 32rpx;
-  border-radius: 12px;
+  border-radius: 18rpx;
   font-size: 24rpx;
-  background: var(--gray-100);
+  background: rgba(255,255,255,0.4);
   color: var(--gray-500);
-  border: 2px solid transparent;
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 .shape-btn.active, .size-btn.active {
-  background: #ede9fe;
-  color: var(--purple);
-  border-color: var(--purple);
+  background: rgba(37,99,235,0.08);
+  color: var(--blue);
+  border-color: rgba(37,99,235,0.25);
 }

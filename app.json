@@ -1,27 +1,22 @@
 {
   "pages": [
     "pages/home/home",
+    "pages/mine/mine",
     "pages/review/review",
     "pages/memo/memo",
     "pages/mindmap/mindmap"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#4f46e5",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "实用部件",
-    "navigationBarTextStyle": "white",
+    "navigationBarTextStyle": "black",
     "backgroundColor": "#f9fafb"
   },
   "tabBar": {
     "custom": true,
-    "color": "#9ca3af",
-    "selectedColor": "#7c3aed",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/home/home", "text": "首页" },
-      { "pagePath": "pages/review/review", "text": "资料" },
-      { "pagePath": "pages/memo/memo", "text": "备忘" },
-      { "pagePath": "pages/mindmap/mindmap", "text": "导图" }
+      { "pagePath": "pages/home/home", "text": "实用部件" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
     ]
   },
   "usingComponents": {}

@@ -1,26 +1,44 @@
 .page-review {
+  width: 100%;
   min-height: 100vh;
-  padding-bottom: 120rpx;
+  padding-bottom: 140rpx;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .tab-content {
+  width: 100%;
   padding-top: 16rpx;
+  box-sizing: border-box;
 }
 
-/* ── Category Items ──────────────────────── */
+/* ── Glass Category Items ─────────────────── */
 .category-item {
   cursor: pointer;
+  display: flex;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
 }
 
-.category-item .delete-btn {
-  background: rgba(255,255,255,0.2);
+.category-item .edit-btn {
+  background: rgba(255,255,255,0.25);
   color: #fff;
   padding: 8rpx 20rpx;
   border-radius: 999px;
   font-size: 22rpx;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
-/* ── Filter Bar ─────────────────────────── */
+.category-item .delete-btn {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 999px;
+  font-size: 22rpx;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* ── Glass Filter Bar ─────────────────────── */
 .filter-bar {
   white-space: nowrap;
 }
@@ -32,40 +50,107 @@
   border-radius: 999px;
   font-size: 24rpx;
   font-weight: 500;
-  background: var(--gray-100);
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.4);
   color: var(--gray-500);
   flex-shrink: 0;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
 }
 
 .filter-pill.active {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #2563eb, #10b981);
   color: #fff;
   font-weight: 600;
+  border-color: transparent;
+  box-shadow: 0 4rpx 16rpx rgba(37,99,235,0.2);
 }
 
-/* ── File Items ─────────────────────────── */
+/* ── Glass File Items ─────────────────────── */
 .file-item {
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 16rpx;
+  position: static;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(37,99,235,0.03), 0 1rpx 4rpx rgba(0,0,0,0.02);
 }
 
-.file-actions text {
-  padding: 8rpx 16rpx;
-  background: var(--gray-100);
+.file-icon {
+  font-size: 44rpx;
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.file-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--gray-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-meta {
+  display: block;
+  font-size: 22rpx;
+  color: var(--gray-400);
+  margin-top: 4rpx;
+}
+
+.file-actions {
+  display: flex;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  padding: 8rpx 20rpx;
   border-radius: 999px;
+  font-size: 22rpx;
+  font-weight: 500;
 }
 
-/* ── Upload Cat ─────────────────────────── */
+.action-rename {
+  color: var(--blue);
+  background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.12);
+}
+
+.action-delete {
+  color: var(--red);
+  background: rgba(244,63,94,0.06);
+  border: 1px solid rgba(244,63,94,0.1);
+}
+
+/* ── Glass Upload Cat ─────────────────────── */
 .upload-cat-item {
-  background: var(--gray-100);
+  background: rgba(255,255,255,0.4);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 28rpx;
+  border-radius: 24rpx;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
 }
 
 .upload-cat-item.active {
-  background: #ede9fe;
-  box-shadow: 0 0 0 3rpx var(--purple);
+  background: rgba(37,99,235,0.08);
+  border-color: rgba(37,99,235,0.3);
+  box-shadow: 0 0 0 3rpx rgba(37,99,235,0.1);
 }
 
-/* ── Color Picker ───────────────────────── */
+/* ── Color Picker ─────────────────────────── */
 .color-option {
   width: 64rpx;
   height: 64rpx;
@@ -73,15 +158,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.15);
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  border: 2rpx solid rgba(255,255,255,0.5);
 }
 
 .color-option.active {
   transform: scale(1.15);
-  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.25);
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.15);
 }
 
-/* ── Disabled Button ────────────────────── */
+/* ── Disabled Button ──────────────────────── */
 .btn-primary.disabled {
   opacity: 0.4;
   pointer-events: none;
