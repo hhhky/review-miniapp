@@ -1,26 +1,100 @@
 <view class="page-mine">
-  <!-- 头部 -->
+
+  <!-- 头部：头像 + 昵称 -->
   <view class="mine-header">
-    <view class="avatar">👤</view>
-    <text class="font-bold" style="font-size:36rpx;color:#fff;margin-top:12rpx;">我的</text>
+    <view class="avatar-wrap" bindtap="onAvatarTap">
+      <view class="avatar">
+        <image wx:if="{{isImageAvatar}}" class="avatar-img" src="{{profile.avatar}}" mode="aspectFill" />
+        <text wx:else>{{profile.avatar || '👤'}}</text>
+      </view>
+      <view class="avatar-edit-badge">📷</view>
+    </view>
+
+    <view class="nickname-row" bindtap="onNicknameTap">
+      <text class="nickname-text">{{profile.nickname || '点击设置昵称'}}</text>
+      <text class="nickname-edit-icon">✏️</text>
+    </view>
   </view>
 
   <!-- 统计卡片 -->
-  <view class="stats-section p-4">
-    <text class="font-semibold" style="font-size:30rpx;display:block;margin-bottom:20rpx;">数据统计</text>
+  <view class="section">
+    <text class="section-title">数据统计</text>
     <view class="stats-grid">
-      <view class="stat-card rounded-2xl p-4">
-        <text style="font-size:48rpx;">📁</text>
-        <text class="font-bold" style="font-size:40rpx;color:var(--blue);">{{fileCount}}</text>
-        <text class="text-xs text-gray">资料总数</text>
+      <view class="stat-card">
+        <text class="stat-icon">📁</text>
+        <text class="stat-num">{{fileCount}}</text>
+        <text class="stat-label">资料总数</text>
       </view>
-      <view class="stat-card rounded-2xl p-4">
-        <text style="font-size:48rpx;">📝</text>
-        <text class="font-bold" style="font-size:40rpx;color:var(--green);">{{memoCount}}</text>
-        <text class="text-xs text-gray">备忘录</text>
+      <view class="stat-card">
+        <text class="stat-icon">📝</text>
+        <text class="stat-num">{{memoCount}}</text>
+        <text class="stat-label">备忘录</text>
       </view>
     </view>
   </view>
 
+  <!-- 功能设置 -->
+  <view class="section">
+    <text class="section-title">设置</text>
+    <view class="settings-list">
+      <view class="setting-item" bindtap="onNicknameTap">
+        <text class="setting-icon">✏️</text>
+        <text class="setting-text">修改昵称</text>
+        <text class="setting-arrow">›</text>
+      </view>
+      <view class="setting-item" bindtap="onAvatarTap">
+        <text class="setting-icon">📷</text>
+        <text class="setting-text">更换头像</text>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ── 昵称编辑弹窗 ── -->
+  <view class="modal-mask" wx:if="{{showNicknameModal}}" bindtap="onCloseNicknameModal">
+    <view class="modal-box" catchtap="onStopPropagation">
+      <view class="modal-title">修改昵称</view>
+      <input
+        class="input"
+        placeholder="请输入昵称（最多20字）"
+        maxlength="20"
+        value="{{nicknameInput}}"
+        bindinput="onNicknameInput"
+        focus="{{true}}"
+      />
+      <view wx:if="{{nicknameError}}" class="error-msg">{{nicknameError}}</view>
+      <view class="modal-btns">
+        <button class="btn-ghost" bindtap="onCloseNicknameModal">取消</button>
+        <button class="btn-primary btn-sm" bindtap="onConfirmNickname">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- ── 头像选择弹窗 ── -->
+  <view class="modal-mask" wx:if="{{showAvatarModal}}" bindtap="onCloseAvatarModal">
+    <view class="modal-box" catchtap="onStopPropagation">
+      <view class="modal-title">选择头像</view>
+
+      <!-- 预设头像 -->
+      <view class="avatar-presets">
+        <view
+          wx:for="{{presetAvatars}}"
+          wx:key="*this"
+          class="preset-avatar {{profile.avatar === item ? 'active' : ''}}"
+          data-avatar="{{item}}"
+          bindtap="onSelectPreset"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 从相册选择 -->
+      <button class="btn-outline mt-4" bindtap="onChooseFromAlbum">从相册选择</button>
+
+      <view class="modal-btns">
+        <button class="btn-ghost" bindtap="onCloseAvatarModal">关闭</button>
+      </view>
+    </view>
+  </view>
 
 </view>

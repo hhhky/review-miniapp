@@ -223,11 +223,25 @@ function deleteWorkflowNode(id) {
   wx.setStorageSync('workflowNodes', nodes);
 }
 
+// ── User Profile ─────────────────────────────
+function getUserProfile() {
+  return wx.getStorageSync('userProfile') || { nickname: '', avatar: '👤' };
+}
+
+function updateUserProfile(updates) {
+  const profile = getUserProfile();
+  if (updates.nickname !== undefined) profile.nickname = updates.nickname;
+  if (updates.avatar !== undefined) profile.avatar = updates.avatar;
+  wx.setStorageSync('userProfile', profile);
+  return profile;
+}
+
 module.exports = {
   initStorage,
   getCategories, addCategory, updateCategory, deleteCategory,
   getFiles, getFileById, addFile, deleteFile, updateFileName,
   getMemos, addMemo, deleteMemo, updateMemo,
   getWorkflows, getWorkflowsByType, addWorkflow, deleteWorkflow,
-  getWorkflowNodes, addWorkflowNode, updateWorkflowNode, deleteWorkflowNode
+  getWorkflowNodes, addWorkflowNode, updateWorkflowNode, deleteWorkflowNode,
+  getUserProfile, updateUserProfile
 };
