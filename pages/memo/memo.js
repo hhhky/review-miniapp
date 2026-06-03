@@ -205,6 +205,15 @@ Page({
   },
 
   // ── Calendar ────────────────────────────
+
+  // 根据备忘录紧急程度返回标签配色
+  getTodoTagStyle(memo) {
+    const info = getDaysInfo(memo);
+    if (info.urgent && info.color === '#ef4444') return { bg: '#ffe0e3', text: '#ff4d4f' };
+    if (info.urgent || info.color === '#f97316' || info.color === '#e11d48') return { bg: '#fff3e0', text: '#ff9800' };
+    return { bg: '#e3f2fd', text: '#1976d2' };
+  },
+
   buildCalendar() {
     const memos = storage.getMemos();
     const memosByDate = {};
@@ -228,13 +237,25 @@ Page({
 
     // Prev month padding
     for (let i = firstDay - 1; i >= 0; i--) {
-      cells.push({ day: prevMonthDays - i, isOtherMonth: true, isToday: false, isSelected: false, dateStr: '', hasMemos: false, urgency: '' });
+      cells.push({ day: prevMonthDays - i, isOtherMonth: true, isToday: false, isSelected: false, dateStr: '', hasMemos: false, urgency: '', todoItems: [] });
     }
 
-    // Current month
+    // Current month — 注入每日待办事项
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
       const dayMemos = memosByDate[dateStr] || [];
+
+      // 构建 todoItems 数组（按创建时间倒序，取前3条用于展示）
+      const todoItems = dayMemos
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 3)
+        .map(m => {
+          const style = this.getTodoTagStyle(m);
+          return { id: m.id, title: m.title, bg: style.bg, text: style.text };
+        });
+      const moreCount = Math.max(0, dayMemos.length - 3);
+
+      // 紧急度指示点颜色
       let urgency = '#34d399';
       if (dayMemos.length > 0) {
         let maxU = 0;
@@ -245,6 +266,7 @@ Page({
         });
         urgency = ['#34d399', '#fb923c', '#ef4444'][maxU];
       }
+
       cells.push({
         day: d,
         isOtherMonth: false,
@@ -252,7 +274,9 @@ Page({
         isSelected: dateStr === this.data.selectedDateStr,
         dateStr,
         hasMemos: dayMemos.length > 0,
-        urgency
+        urgency,
+        todoItems,
+        moreCount
       });
     }
 
@@ -261,7 +285,7 @@ Page({
     let remaining = totalCells % 7 === 0 ? 0 : 7 - totalCells % 7;
     if (firstDay + daysInMonth + remaining < 42) remaining += 7;
     for (let d = 1; d <= remaining; d++) {
-      cells.push({ day: d, isOtherMonth: true, isToday: false, isSelected: false, dateStr: '', hasMemos: false, urgency: '' });
+      cells.push({ day: d, isOtherMonth: true, isToday: false, isSelected: false, dateStr: '', hasMemos: false, urgency: '', todoItems: [] });
     }
 
     // Selected date memos

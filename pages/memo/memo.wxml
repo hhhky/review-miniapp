@@ -44,14 +44,24 @@
       <text class="cal-header">六</text>
     </view>
 
-    <!-- Calendar grid -->
+    <!-- Calendar grid — 日程看板 -->
     <view class="cal-grid">
-      <view wx:for="{{calendarCells}}" wx:key="index" class="cal-cell {{item.isOtherMonth?'other-month':''}} {{item.isToday?'today':''}} {{item.isSelected?'selected':''}}"
+      <view wx:for="{{calendarCells}}" wx:key="index"
+        class="cal-cell {{item.isOtherMonth?'other-month':''}} {{item.isToday?'today':''}} {{item.isSelected?'selected':''}}"
         data-date="{{item.dateStr}}" bindtap="selectDate">
         <view class="cal-cell-inner">
+          <!-- 高亮背景 -->
           <view wx:if="{{item.isToday || item.isSelected}}" class="cal-highlight {{item.isSelected?'selected':''}}"></view>
-          <text class="cal-day">{{item.day}}</text>
-          <view wx:if="{{item.hasMemos}}" class="cal-dot" style="background:{{item.urgency}};"></view>
+          <!-- 日期数字 -->
+          <view class="cal-day-row">
+            <text class="cal-day">{{item.day}}</text>
+            <view wx:if="{{item.hasMemos}}" class="cal-dot" style="background:{{item.urgency}};"></view>
+          </view>
+          <!-- 当日待办标签 -->
+          <view wx:if="{{item.todoItems.length > 0}}" class="day-todo-container">
+            <view wx:for="{{item.todoItems}}" wx:key="id" wx:for-item="todo" class="todo-tag-item" style="background:{{todo.bg}};color:{{todo.text}};">{{todo.title}}</view>
+            <text wx:if="{{item.moreCount > 0}}" class="todo-more">+{{item.moreCount}} 更多</text>
+          </view>
         </view>
       </view>
     </view>
