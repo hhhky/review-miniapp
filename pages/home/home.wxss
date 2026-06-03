@@ -24,23 +24,25 @@
   margin-top: 6rpx;
 }
 
-/* ── Glass Widget Cards ────────────────────── */
+/* ── 双列网格 ──────────────────────────────── */
 .widgets-grid {
-  padding: 0 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+  align-items: start;
 }
 
+/* ── 卡片通用 ──────────────────────────────── */
 .widget-card {
   cursor: pointer;
 }
 
+.widget-card-tall {
+  grid-row: span 2;
+}
+
 .widget-card-inner {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  padding: 32rpx 24rpx;
   border-radius: 36rpx;
   background: rgba(255,255,255,0.4);
   border: 1px solid rgba(255,255,255,0.5);
@@ -65,10 +67,21 @@
   box-shadow: 0 2rpx 12rpx rgba(37,99,235,0.06);
 }
 
-.widget-icon-wrap {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 32rpx;
+/* ── Tall 卡片（竖向） ─────────────────────── */
+.card-inner-tall {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48rpx 28rpx;
+  gap: 24rpx;
+  height: 100%;
+}
+
+.icon-wrap-tall {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,10 +89,34 @@
   box-shadow: 0 8rpx 24rpx rgba(37,99,235,0.15);
 }
 
-.widget-icon {
-  font-size: 48rpx;
+.icon-tall {
+  font-size: 64rpx;
 }
 
+/* ── Square 卡片（横向） ───────────────────── */
+.card-inner-square {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 32rpx 24rpx;
+}
+
+.icon-wrap-square {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8rpx 24rpx rgba(37,99,235,0.15);
+}
+
+.icon-square {
+  font-size: 40rpx;
+}
+
+/* ── 信息区 ────────────────────────────────── */
 .widget-info {
   flex: 1;
   min-width: 0;
