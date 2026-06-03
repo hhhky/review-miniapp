@@ -24,13 +24,25 @@
   margin-top: 6rpx;
 }
 
-/* ── 双列网格 ──────────────────────────────── */
-.widgets-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* ── 双列 Flex 容器（底部对齐） ────────────── */
+.widgets-row {
+  display: flex;
   gap: 24rpx;
   padding: 24rpx 32rpx;
-  align-items: start;
+  align-items: stretch;
+}
+
+.widgets-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.widgets-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
 /* ── 卡片通用 ──────────────────────────────── */
@@ -39,7 +51,11 @@
 }
 
 .widget-card-tall {
-  grid-row: span 2;
+  height: 100%;
+}
+
+.widget-card-square {
+  flex: 1;
 }
 
 .widget-card-inner {
@@ -67,7 +83,7 @@
   box-shadow: 0 2rpx 12rpx rgba(37,99,235,0.06);
 }
 
-/* ── Tall 卡片（竖向） ─────────────────────── */
+/* ── Tall 卡片（竖向填满左列） ─────────────── */
 .card-inner-tall {
   display: flex;
   flex-direction: column;
@@ -76,6 +92,7 @@
   padding: 48rpx 28rpx;
   gap: 24rpx;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .icon-wrap-tall {
@@ -93,12 +110,21 @@
   font-size: 64rpx;
 }
 
+.widget-info-tall {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* ── Square 卡片（横向） ───────────────────── */
 .card-inner-square {
   display: flex;
   align-items: center;
   gap: 20rpx;
   padding: 32rpx 24rpx;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .icon-wrap-square {

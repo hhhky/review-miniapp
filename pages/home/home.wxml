@@ -5,29 +5,54 @@
     <text class="home-subtitle">{{widgets.length}} 个部件 · 点击进入</text>
   </view>
 
-  <!-- 双列网格卡片 -->
-  <view class="widgets-grid">
-    <view
-      wx:for="{{widgets}}"
-      wx:key="id"
-      class="widget-card {{item.size === 'tall' ? 'widget-card-tall' : 'widget-card-square'}}"
-      data-id="{{item.id}}"
-      bindtap="enterWidget"
-    >
-      <view class="widget-card-inner {{item.size === 'tall' ? 'card-inner-tall' : 'card-inner-square'}}"
-        style="background: linear-gradient(135deg, {{item.color}}11, {{item.color}}22);">
-
-        <view class="widget-icon-wrap {{item.size === 'tall' ? 'icon-wrap-tall' : 'icon-wrap-square'}}"
-          style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);">
-          <text class="widget-icon {{item.size === 'tall' ? 'icon-tall' : 'icon-square'}}">{{item.icon}}</text>
+  <!-- 双列布局：左 tall + 右 square×2，底部对齐 -->
+  <view class="widgets-row">
+    <!-- 左列 -->
+    <view class="widgets-left">
+      <view
+        wx:for="{{widgets}}"
+        wx:key="id"
+        wx:if="{{index === 0}}"
+        class="widget-card widget-card-tall"
+        data-id="{{item.id}}"
+        bindtap="enterWidget"
+      >
+        <view class="widget-card-inner card-inner-tall"
+          style="background: linear-gradient(135deg, {{item.color}}11, {{item.color}}22);">
+          <view class="widget-icon-wrap icon-wrap-tall"
+            style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);">
+            <text class="widget-icon icon-tall">{{item.icon}}</text>
+          </view>
+          <view class="widget-info widget-info-tall">
+            <text class="widget-name">{{item.name}}</text>
+            <text class="widget-desc">{{item.desc}}</text>
+          </view>
         </view>
+      </view>
+    </view>
 
-        <view class="widget-info">
-          <text class="widget-name">{{item.name}}</text>
-          <text class="widget-desc">{{item.desc}}</text>
+    <!-- 右列 -->
+    <view class="widgets-right">
+      <view
+        wx:for="{{widgets}}"
+        wx:key="id"
+        wx:if="{{index > 0}}"
+        class="widget-card widget-card-square"
+        data-id="{{item.id}}"
+        bindtap="enterWidget"
+      >
+        <view class="widget-card-inner card-inner-square"
+          style="background: linear-gradient(135deg, {{item.color}}11, {{item.color}}22);">
+          <view class="widget-icon-wrap icon-wrap-square"
+            style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);">
+            <text class="widget-icon icon-square">{{item.icon}}</text>
+          </view>
+          <view class="widget-info">
+            <text class="widget-name">{{item.name}}</text>
+            <text class="widget-desc">{{item.desc}}</text>
+          </view>
+          <text class="widget-arrow">›</text>
         </view>
-
-        <text wx:if="{{item.size !== 'tall'}}" class="widget-arrow">›</text>
       </view>
     </view>
   </view>
