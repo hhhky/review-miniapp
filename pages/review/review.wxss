@@ -1,5 +1,3 @@
-/* ── 资料管理 · 琥珀暗夜 ────────────────────── */
-
 .page-review {
   width: 100%;
   min-height: 100vh;
@@ -18,26 +16,26 @@
 .category-item {
   cursor: pointer;
   display: flex;
-  border: 1px solid rgba(255,255,255,0.07);
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
 }
 
 .category-item .edit-btn {
-  background: rgba(255,255,255,0.06);
-  color: #A0A5B0;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
   padding: 8rpx 20rpx;
   border-radius: 999px;
   font-size: 22rpx;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 .category-item .delete-btn {
-  background: rgba(244,63,94,0.08);
-  color: #f87171;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
   padding: 8rpx 20rpx;
   border-radius: 999px;
   font-size: 22rpx;
-  border: 1px solid rgba(244,63,94,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 /* ── Glass Filter Bar ─────────────────────── */
@@ -52,19 +50,19 @@
   border-radius: 999px;
   font-size: 24rpx;
   font-weight: 500;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  color: #6B7280;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: var(--gray-500);
   flex-shrink: 0;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
 }
 
 .filter-pill.active {
-  background: #E67E22;
+  background: linear-gradient(135deg, #2563eb, #10b981);
   color: #fff;
   font-weight: 600;
   border-color: transparent;
-  box-shadow: 0 4rpx 16rpx rgba(230,126,34,0.3);
+  box-shadow: 0 4rpx 16rpx rgba(37,99,235,0.2);
 }
 
 /* ── Glass File Items ─────────────────────── */
@@ -75,10 +73,10 @@
   padding: 28rpx 24rpx;
   margin-bottom: 16rpx;
   position: static;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.5);
   border-radius: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.2);
+  box-shadow: 0 4rpx 20rpx rgba(37,99,235,0.03), 0 1rpx 4rpx rgba(0,0,0,0.02);
 }
 
 .file-icon {
@@ -96,7 +94,7 @@
   display: block;
   font-size: 28rpx;
   font-weight: 500;
-  color: #E8E8ED;
+  color: var(--gray-800);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -105,7 +103,7 @@
 .file-meta {
   display: block;
   font-size: 22rpx;
-  color: #6B7280;
+  color: var(--gray-400);
   margin-top: 4rpx;
 }
 
@@ -123,33 +121,33 @@
 }
 
 .action-rename {
-  color: #E67E22;
-  background: rgba(230,126,34,0.08);
-  border: 1px solid rgba(230,126,34,0.12);
+  color: var(--blue);
+  background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.12);
 }
 
 .action-delete {
-  color: #f87171;
+  color: var(--red);
   background: rgba(244,63,94,0.06);
-  border: 1px solid rgba(244,63,94,0.10);
+  border: 1px solid rgba(244,63,94,0.1);
 }
 
 /* ── Glass Upload Cat ─────────────────────── */
 .upload-cat-item {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.4);
   cursor: pointer;
   display: flex;
   align-items: center;
   padding: 20rpx 28rpx;
   border-radius: 24rpx;
-  border: 1px solid rgba(255,255,255,0.07);
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
 }
 
 .upload-cat-item.active {
-  background: rgba(230,126,34,0.08);
-  border-color: rgba(230,126,34,0.3);
-  box-shadow: 0 0 0 3rpx rgba(230,126,34,0.12);
+  background: rgba(37,99,235,0.08);
+  border-color: rgba(37,99,235,0.3);
+  box-shadow: 0 0 0 3rpx rgba(37,99,235,0.1);
 }
 
 /* ── Color Picker ─────────────────────────── */
@@ -160,13 +158,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.2);
-  border: 2rpx solid rgba(255,255,255,0.08);
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  border: 2rpx solid rgba(255,255,255,0.5);
 }
 
 .color-option.active {
   transform: scale(1.15);
-  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.25);
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.15);
 }
 
 /* ── Disabled Button ──────────────────────── */
