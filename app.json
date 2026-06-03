@@ -7,10 +7,10 @@
     "pages/mindmap/mindmap"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#0D0E12",
     "navigationBarTitleText": "实用部件",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#f9fafb"
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0D0E12"
   },
   "tabBar": {
     "custom": true,

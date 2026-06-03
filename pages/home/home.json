@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "实用部件",
+  "navigationBarBackgroundColor": "#0D0E12",
+  "navigationBarTextStyle": "white",
   "usingComponents": {}
 }

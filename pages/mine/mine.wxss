@@ -1,3 +1,5 @@
+/* ── 我的 · 琥珀暗夜 ────────────────────────── */
+
 .page-mine {
   min-height: 100vh;
   padding-bottom: 120rpx;
@@ -5,12 +7,12 @@
 
 /* ── Header ──────────────────────────── */
 .mine-header {
-  background: linear-gradient(170deg, rgba(37,99,235,0.12), rgba(59,130,246,0.08), rgba(16,185,129,0.06));
+  background: linear-gradient(170deg, rgba(230,126,34,0.08), rgba(245,158,11,0.04), rgba(241,196,15,0.03));
   padding: 80rpx 32rpx 48rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.5);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .avatar-wrap {
@@ -22,13 +24,13 @@
   width: 140rpx;
   height: 140rpx;
   border-radius: 50%;
-  background: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 64rpx;
-  border: 3rpx solid rgba(255,255,255,0.7);
-  box-shadow: 0 8rpx 32rpx rgba(37,99,235,0.08);
+  border: 3rpx solid rgba(255,255,255,0.10);
+  box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.35);
   transition: transform 0.2s;
   overflow: hidden;
 }
@@ -50,13 +52,13 @@
   width: 44rpx;
   height: 44rpx;
   border-radius: 50%;
-  background: rgba(255,255,255,0.85);
-  border: 2rpx solid rgba(255,255,255,0.6);
+  background: rgba(20,22,28,0.9);
+  border: 2rpx solid rgba(255,255,255,0.10);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.3);
 }
 
 .nickname-row {
@@ -65,19 +67,19 @@
   gap: 8rpx;
   padding: 12rpx 32rpx;
   border-radius: 999px;
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.5);
-  box-shadow: 0 2rpx 12rpx rgba(37,99,235,0.04);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.2);
 }
 
 .nickname-row:active {
-  background: rgba(37,99,235,0.06);
+  background: rgba(230,126,34,0.06);
 }
 
 .nickname-text {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: #E8E8ED;
   max-width: 360rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,7 +88,7 @@
 
 .nickname-edit-icon {
   font-size: 24rpx;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 /* ── Sections ─────────────────────────── */
@@ -97,7 +99,7 @@
 .section-title {
   font-size: 26rpx;
   font-weight: 600;
-  color: #6b7280;
+  color: #6B7280;
   margin-bottom: 16rpx;
   display: block;
   padding-left: 8rpx;
@@ -111,15 +113,15 @@
 }
 
 .stat-card {
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8rpx;
   padding: 28rpx;
-  box-shadow: 0 4rpx 20rpx rgba(37,99,235,0.03), 0 1rpx 4rpx rgba(0,0,0,0.02);
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.2), 0 1rpx 4rpx rgba(0,0,0,0.1);
 }
 
 .stat-icon {
@@ -129,21 +131,21 @@
 .stat-num {
   font-size: 44rpx;
   font-weight: 700;
-  color: #2563eb;
+  color: #E67E22;
 }
 
 .stat-label {
   font-size: 22rpx;
-  color: #9ca3af;
+  color: #6B7280;
 }
 
 /* ── Settings ─────────────────────────── */
 .settings-list {
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 20rpx rgba(37,99,235,0.03), 0 1rpx 4rpx rgba(0,0,0,0.02);
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.2), 0 1rpx 4rpx rgba(0,0,0,0.1);
 }
 
 .setting-item {
@@ -151,7 +153,7 @@
   align-items: center;
   padding: 24rpx 32rpx;
   gap: 16rpx;
-  border-bottom: 1px solid rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .setting-item:last-child {
@@ -159,7 +161,7 @@
 }
 
 .setting-item:active {
-  background: rgba(37,99,235,0.04);
+  background: rgba(230,126,34,0.04);
 }
 
 .setting-icon {
@@ -169,19 +171,19 @@
 .setting-text {
   flex: 1;
   font-size: 28rpx;
-  color: #374151;
+  color: #D1D5DB;
   font-weight: 500;
 }
 
 .setting-arrow {
   font-size: 36rpx;
-  color: #d1d5db;
+  color: rgba(255,255,255,0.12);
   font-weight: 300;
 }
 
 /* ── Error ─────────────────────────────── */
 .error-msg {
-  color: #f43f5e;
+  color: #f87171;
   font-size: 24rpx;
   margin-top: 12rpx;
   text-align: center;
@@ -200,49 +202,49 @@
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  background: rgba(255,255,255,0.5);
-  border: 2rpx solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.05);
+  border: 2rpx solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 40rpx;
-  box-shadow: 0 2rpx 8rpx rgba(37,99,235,0.04);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.2);
 }
 
 .preset-avatar.active {
-  border-color: #2563eb;
-  background: rgba(37,99,235,0.1);
-  box-shadow: 0 0 0 4rpx rgba(37,99,235,0.12);
+  border-color: #E67E22;
+  background: rgba(230,126,34,0.12);
+  box-shadow: 0 0 0 4rpx rgba(230,126,34,0.14);
 }
 
 .preset-avatar:active {
   transform: scale(0.9);
 }
 
-/* ── Buttons ──────────────────────────── */
+/* ── Buttons (暗夜) ───────────────────── */
 .btn-cancel {
   height: 80rpx;
   line-height: 80rpx;
   text-align: center;
-  background: #f5f5f5;
-  color: #666666;
+  background: rgba(255,255,255,0.05);
+  color: #A0A5B0;
   border-radius: 20rpx;
   font-size: 28rpx;
   font-weight: 500;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.06);
   box-sizing: border-box;
 }
 
 .btn-cancel:active {
-  background: #e8e8e8;
+  background: rgba(255,255,255,0.08);
 }
 
-/* ── Input inside modal (override for dark text) ── */
+/* ── Input inside modal override ──────── */
 .modal-box .input {
-  color: #333333;
+  color: #E8E8ED;
 }
 
-/* ── Modal Buttons (legacy, preserved for compat) ── */
+/* ── Modal Buttons (legacy, preserved) ─── */
 .modal-btns {
   display: flex;
   justify-content: flex-end;

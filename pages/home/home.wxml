@@ -1,34 +1,54 @@
 <view class="page-home">
-  <!-- 头部 -->
+
+  <!-- ── 头部 ── -->
   <view class="home-header">
     <text class="home-title">实用部件</text>
-    <text class="home-subtitle">{{widgets.length}} 个部件 · 点击进入</text>
+    <text class="home-subtitle">{{widgets.length}} 个部件</text>
   </view>
 
-  <!-- 金刚区卡片 -->
-  <view class="widgets-grid">
+  <!-- ── 仪表盘网格 ── -->
+  <view class="dash-grid">
+
+    <!-- 遍历卡片，根据 size 属性自动分配 tall / square 类 -->
     <view
       wx:for="{{widgets}}"
       wx:key="id"
-      class="widget-card"
+      class="dash-card {{item.size === 'tall' ? 'dash-card-tall' : 'dash-card-square'}}"
       data-id="{{item.id}}"
       bindtap="enterWidget"
     >
-      <view class="widget-card-inner" style="background: linear-gradient(135deg, {{item.color}}11, {{item.color}}22);">
-        <view class="widget-icon-wrap" style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}dd);">
-          <text class="widget-icon">{{item.icon}}</text>
+
+      <!-- 卡片内部琥珀高光线 -->
+      <view class="card-glow-line"></view>
+
+      <view class="card-body {{item.size === 'tall' ? 'card-body-tall' : 'card-body-square'}}">
+
+        <!-- 图标区 -->
+        <view class="card-icon-wrap" style="background: linear-gradient(135deg, {{item.color}}, {{item.color}}cc); box-shadow: 0 8px 24px {{item.color}}33;">
+          <text class="card-icon">{{item.icon}}</text>
         </view>
-        <view class="widget-info">
-          <text class="widget-name">{{item.name}}</text>
-          <text class="widget-desc">{{item.desc}}</text>
+
+        <!-- 文字区 -->
+        <view class="card-text">
+          <text class="card-name">{{item.name}}</text>
+          <text class="card-desc">{{item.desc}}</text>
         </view>
-        <text class="widget-arrow">›</text>
+
+        <!-- 箭头 (仅 tall 卡片显示) -->
+        <text wx:if="{{item.size === 'tall'}}" class="card-arrow">→</text>
+
       </view>
+
+      <!-- tall 卡片底部微光条 -->
+      <view wx:if="{{item.size === 'tall'}}" class="card-bottom-accent" style="background: linear-gradient(90deg, {{item.color}}44, {{item.color}}11, transparent);"></view>
+
     </view>
+
   </view>
 
-  <!-- 底部提示 -->
+  <!-- ── 底部 ── -->
   <view class="home-footer">
     <text class="text-xs text-gray">powered by hhhky</text>
   </view>
+
 </view>

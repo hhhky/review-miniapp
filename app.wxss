@@ -1,16 +1,18 @@
-/* ── Glassmorphism Global Styles ────────────────── */
+/* ── 琥珀暗夜 · 全局毛玻璃主题 ────────────────── */
 
 page, view, text, input, textarea, button, image, scroll-view, swiper, swiper-item, navigator, picker, canvas {
   box-sizing: border-box;
 }
 
 page {
-  --blue: #2563eb;
-  --blue-light: #3b82f6;
-  --green: #10b981;
-  --teal: #06b6d4;
-  --red: #f43f5e;
-  --gray-50: #f9fafb;
+  /* ── 琥珀暗金调色板 ── */
+  --amber:       #E67E22;
+  --amber-light: #F59E0B;
+  --amber-dark:  #D97706;
+  --gold:        #F1C40F;
+  --gold-soft:   rgba(241, 196, 15, 0.18);
+
+  --gray-50:  #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
   --gray-300: #d1d5db;
@@ -19,20 +21,24 @@ page {
   --gray-600: #4b5563;
   --gray-800: #1f2937;
 
-  /* Glass color tokens */
-  --glass-bg: rgba(255,255,255,0.45);
-  --glass-bg-strong: rgba(255,255,255,0.65);
-  --glass-bg-light: rgba(255,255,255,0.3);
-  --glass-border: rgba(255,255,255,0.5);
-  --glass-shadow: 0 4rpx 24rpx rgba(37,99,235,0.04), 0 2rpx 6rpx rgba(0,0,0,0.02);
-  --glass-shadow-hover: 0 8rpx 36rpx rgba(37,99,235,0.08), 0 2rpx 8rpx rgba(0,0,0,0.03);
+  /* 暗夜玻璃令牌 */
+  --glass-bg:        rgba(255, 255, 255, 0.03);
+  --glass-bg-strong: rgba(255, 255, 255, 0.06);
+  --glass-bg-hover:  rgba(255, 255, 255, 0.05);
+  --glass-border:    rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --glass-shadow:    0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-shadow-sm: 0 4px 16px 0 rgba(0, 0, 0, 0.25);
 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
   font-size: 28rpx;
-  color: var(--gray-800);
+  color: #E8E8ED;
 
-  /* Soft page gradient — glass-friendly backdrop */
-  background: linear-gradient(170deg, #dbeafe 0%, #d1fae5 25%, #ffffff 55%, #ecfdf5 80%, #f0fdf4 100%);
+  /* ── 深邃暗夜蓝 → 温暖琥珀金 弥散背景 ── */
+  background:
+    radial-gradient(circle at top right, rgba(230, 126, 34, 0.15), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(241, 196, 15, 0.1), transparent 50%),
+    #0D0E12 !important;
   box-sizing: border-box;
   width: 100%;
   overflow-x: hidden;
@@ -52,7 +58,7 @@ page {
 .text-center { text-align: center; }
 .text-sm { font-size: 24rpx; }
 .text-xs { font-size: 20rpx; }
-.text-gray { color: var(--gray-400); }
+.text-gray { color: #A0A5B0; }
 .text-white { color: #fff; }
 .font-bold { font-weight: 700; }
 .font-semibold { font-weight: 600; }
@@ -80,19 +86,19 @@ page {
 .overflow-hidden { overflow: hidden; }
 .relative { position: relative; }
 
-/* ── Buttons ───────────────────────────────── */
+/* ── Buttons (琥珀暗夜) ────────────────────── */
 .btn-primary {
-  background: linear-gradient(135deg, #2563eb, #10b981);
-  color: #fff;
+  background: #FFFFFF;
+  color: #0D0E12;
   border: none;
   border-radius: 999px;
   padding: 20rpx 48rpx;
   font-size: 28rpx;
   font-weight: 600;
-  box-shadow: 0 4rpx 16rpx rgba(37,99,235,0.2);
+  box-shadow: 0 4rpx 20rpx rgba(230, 126, 34, 0.3);
 }
 
-.btn-primary:active { opacity: 0.85; transform: scale(0.97); }
+.btn-primary:active { opacity: 0.88; transform: scale(0.97); }
 
 .btn-sm {
   padding: 12rpx 32rpx;
@@ -102,45 +108,44 @@ page {
 
 .btn-outline {
   background: var(--glass-bg);
-  color: var(--blue);
-  border: 1px solid rgba(37,99,235,0.25);
+  color: var(--amber);
+  border: 1px solid rgba(230, 126, 34, 0.25);
   border-radius: 999px;
   padding: 16rpx 40rpx;
   font-size: 26rpx;
   font-weight: 500;
-  box-shadow: var(--glass-shadow);
 }
 
 .btn-ghost {
   background: transparent;
   border: none;
-  color: var(--gray-500);
+  color: #A0A5B0;
   padding: 16rpx 24rpx;
   font-size: 26rpx;
 }
 
-.btn-ghost:active { background: rgba(37,99,235,0.06); }
+.btn-ghost:active { background: rgba(255,255,255,0.04); }
 
-/* ── Glass Cards ────────────────────────────── */
+/* ── Glass Cards (暗夜) ────────────────────── */
 .card, .glass-card {
   background: var(--glass-bg);
   border-radius: 24rpx;
   padding: 24rpx;
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--glass-shadow-sm);
 }
 
 .card:active, .glass-card:active { transform: scale(0.98); opacity: 0.9; }
 
-/* ── Glass Input ────────────────────────────── */
+/* ── Glass Input (暗夜) ────────────────────── */
 .input {
   width: 100%;
   padding: 24rpx 28rpx;
-  border: 1px solid rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18rpx;
   font-size: 28rpx;
-  color: var(--gray-800);
-  background: rgba(255,255,255,0.55);
+  color: #E8E8ED;
+  background: rgba(255,255,255,0.04);
   box-sizing: border-box;
   text-align: left;
 }
@@ -151,9 +156,9 @@ page {
 }
 
 .input:focus {
-  border-color: rgba(37,99,235,0.4);
-  background: rgba(255,255,255,0.65);
-  box-shadow: 0 0 0 4rpx rgba(37,99,235,0.06);
+  border-color: rgba(230, 126, 34, 0.35);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 4rpx rgba(230, 126, 34, 0.08);
 }
 
 textarea.input {
@@ -161,13 +166,13 @@ textarea.input {
   min-height: 120rpx;
 }
 
-/* ── Glass Modal ────────────────────────────── */
+/* ── Glass Modal (暗夜) ────────────────────── */
 .modal-mask {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,40 +181,40 @@ textarea.input {
 }
 
 .modal-box {
-  background: rgba(255,255,255,0.75);
+  background: rgba(20, 22, 28, 0.92);
   border-radius: 36rpx;
   padding: 32rpx;
   width: 88%;
   max-width: 600rpx;
   max-height: 72vh;
   overflow-y: auto;
-  border: 1px solid rgba(255,255,255,0.6);
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.08), 0 4rpx 12rpx rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24rpx 64rpx rgba(0,0,0,0.55), inset 0 1px 1px rgba(255,255,255,0.04);
 }
 
 .modal-title {
   font-size: 34rpx;
   font-weight: 700;
   text-align: center;
-  color: var(--blue);
+  color: #E8E8ED;
   margin-bottom: 24rpx;
   word-break: break-all;
 }
 
-/* ── Bottom Fixed Sub-Tabs ──────────────────── */
+/* ── Bottom Fixed Sub-Tabs (暗夜) ──────────── */
 .bottom-tabs {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 900;
-  background: rgba(255,255,255,0.5);
-  border-top: 1px solid rgba(255,255,255,0.6);
+  background: rgba(13, 14, 18, 0.85);
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
   justify-content: space-around;
   padding: 8px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 24rpx rgba(37,99,235,0.04);
+  box-shadow: 0 -4rpx 24rpx rgba(0,0,0,0.35);
 }
 
 .bottom-tabs .tabs {
@@ -230,7 +235,7 @@ textarea.input {
   align-items: center;
   gap: 2px;
   font-size: 20rpx;
-  color: #9ca3af;
+  color: #6B7280;
   padding: 8rpx 32rpx;
   border-radius: 20rpx;
   background: transparent;
@@ -239,9 +244,9 @@ textarea.input {
 }
 
 .bottom-tabs .tab-btn.active {
-  color: #2563eb;
+  color: #E67E22;
   font-weight: 600;
-  background: rgba(37,99,235,0.08);
+  background: rgba(230, 126, 34, 0.10);
   border: none;
   box-shadow: none;
 }
@@ -255,13 +260,13 @@ textarea.input {
   font-size: 20rpx;
 }
 
-/* ── Glass Tabs ─────────────────────────────── */
+/* ── Glass Tabs (暗夜) ─────────────────────── */
 .tabs {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: rgba(255,255,255,0.3);
-  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 999px;
 }
 
@@ -271,25 +276,24 @@ textarea.input {
   border-radius: 999px;
   font-size: 24rpx;
   font-weight: 500;
-  color: var(--gray-500);
+  color: #6B7280;
   background: transparent;
   border: none;
   text-align: center;
-  transition: all 0.2s;
 }
 
 .tab-btn.active {
-  background: var(--glass-bg-strong);
-  color: var(--blue);
+  background: rgba(255,255,255,0.06);
+  color: #E67E22;
   font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.5);
-  box-shadow: 0 2rpx 8rpx rgba(37,99,235,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.2);
 }
 
 /* ── Empty State ───────────────────────────── */
 .empty {
   text-align: center;
-  color: var(--gray-400);
+  color: #6B7280;
   padding: 80rpx 0;
   font-size: 26rpx;
 }
@@ -316,15 +320,15 @@ textarea.input {
 .badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.4);
-  color: var(--gray-500);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #A0A5B0;
   font-size: 22rpx;
   padding: 4rpx 16rpx;
   border-radius: 999px;
 }
 
-/* ── Floating Action Button ─────────────────── */
+/* ── Floating Action Button (琥珀) ─────────── */
 .fab {
   position: fixed;
   top: auto;
@@ -333,12 +337,12 @@ textarea.input {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #10b981);
+  background: #E67E22;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 800;
-  box-shadow: 0 8rpx 32rpx rgba(37,99,235,0.3);
+  box-shadow: 0 8rpx 32rpx rgba(230, 126, 34, 0.35);
 }
 
 .fab:active {
@@ -353,7 +357,5 @@ textarea.input {
   margin-top: -2rpx;
 }
 
-/* ── Glass Shadow ──────────────────────────── */
-.shadow-sm {
-  box-shadow: var(--glass-shadow);
-}
+/* ── Shadow ────────────────────────────────── */
+.shadow-sm { box-shadow: var(--glass-shadow-sm); }
