@@ -14,6 +14,10 @@ Page({
 
   enterWidget(e) {
     const id = e.currentTarget.dataset.id;
+    if (id === 'mindmap') {
+      wx.showToast({ title: '正在开发中', icon: 'none', duration: 2000 });
+      return;
+    }
     wx.navigateTo({ url: '/pages/' + id + '/' + id });
   }
 });
