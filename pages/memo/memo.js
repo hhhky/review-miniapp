@@ -1,4 +1,5 @@
 const storage = require('../../utils/storage');
+const { fabData, fabMethods } = require('../../utils/fab-behavior');
 
 function getDaysInfo(memo) {
   if (!memo.deadline) return { label: '无截止日期', color: '#9ca3af', urgent: false };
@@ -25,8 +26,7 @@ Page({
     memos: [],
     showMemoModal: false,
     editingMemoId: null,
-    fabLeft: null,
-    fabTop: null,
+    ...fabData,
     memoForm: { title: '', content: '', deadlineDate: '', autoDelete: false },
 
     // Calendar
@@ -108,48 +108,12 @@ Page({
     this.setData({ showMemoModal: false, editingMemoId: null });
   },
 
-  // ── FAB Drag ────────────────────────────
-  onFabTap() {
-    if (!this._fabMoved) {
-      this.showAddMemo();
-    }
-    this._fabMoved = false;
+  // ── FAB (shared behavior) ────────────────
+  _handleFabTap() {
+    this.showAddMemo();
   },
 
-  onFabTouchStart(e) {
-    this._fabMoved = false;
-    const touch = e.touches[0];
-    const query = wx.createSelectorQuery();
-    query.select('.fab').boundingClientRect(rect => {
-      if (!rect) return;
-      this._fabStartLeft = rect.left;
-      this._fabStartTop = rect.top;
-      this._fabTouchX = touch.clientX;
-      this._fabTouchY = touch.clientY;
-      this._fabDragging = true;
-      if (this.data.fabLeft === null) {
-        this.setData({ fabLeft: rect.left, fabTop: rect.top });
-      }
-    }).exec();
-  },
-
-  onFabTouchMove(e) {
-    if (!this._fabDragging) return;
-    const touch = e.touches[0];
-    const dx = touch.clientX - this._fabTouchX;
-    const dy = touch.clientY - this._fabTouchY;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-      this._fabMoved = true;
-    }
-    this.setData({
-      fabLeft: this._fabStartLeft + dx,
-      fabTop: this._fabStartTop + dy
-    });
-  },
-
-  onFabTouchEnd() {
-    this._fabDragging = false;
-  },
+  ...fabMethods,
 
   noop() {},
 

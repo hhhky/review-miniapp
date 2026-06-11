@@ -1,4 +1,5 @@
 const storage = require('../../utils/storage');
+const { fabData, fabMethods } = require('../../utils/fab-behavior');
 
 const COLORS = [
   '#2563eb','#3b82f6','#60a5fa','#6366f1','#1d4ed8','#1e40af',
@@ -30,8 +31,7 @@ Page({
     newCatName: '',
     showCatModal: false,
     editingCatId: null,
-    fabLeft: null,
-    fabTop: null,
+    ...fabData,
 
     // Files
     totalFiles: 0,
@@ -97,48 +97,12 @@ Page({
     if (tab === 'upload') this.loadData();
   },
 
-  // ── FAB Drag ────────────────────────────
-  onFabTap() {
-    if (!this._fabMoved) {
-      this.showAddCategory();
-    }
-    this._fabMoved = false;
+  // ── FAB (shared behavior) ────────────────
+  _handleFabTap() {
+    this.showAddCategory();
   },
 
-  onFabTouchStart(e) {
-    this._fabMoved = false;
-    const touch = e.touches[0];
-    const query = wx.createSelectorQuery();
-    query.select('.fab').boundingClientRect(rect => {
-      if (!rect) return;
-      this._fabStartLeft = rect.left;
-      this._fabStartTop = rect.top;
-      this._fabTouchX = touch.clientX;
-      this._fabTouchY = touch.clientY;
-      this._fabDragging = true;
-      if (this.data.fabLeft === null) {
-        this.setData({ fabLeft: rect.left, fabTop: rect.top });
-      }
-    }).exec();
-  },
-
-  onFabTouchMove(e) {
-    if (!this._fabDragging) return;
-    const touch = e.touches[0];
-    const dx = touch.clientX - this._fabTouchX;
-    const dy = touch.clientY - this._fabTouchY;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-      this._fabMoved = true;
-    }
-    this.setData({
-      fabLeft: this._fabStartLeft + dx,
-      fabTop: this._fabStartTop + dy
-    });
-  },
-
-  onFabTouchEnd() {
-    this._fabDragging = false;
-  },
+  ...fabMethods,
 
   // ── Categories ──────────────────────────
   noop() {},
